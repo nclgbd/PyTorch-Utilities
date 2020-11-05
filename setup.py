@@ -4,11 +4,12 @@ with open("README.md", "r") as f:
     long_description = f.read()
 
 setuptools.setup(
-    name="utilities-nicoleguob", # Replace with your own username
+    name="pytorch-vision-utils", # Replace with your own username
     version="0.0.1",
+    scripts=['Utilities.py'],
     author="Nicole Guo",
     author_email="nicoleguob@gmail.com",
-    description="PyTorch training and data viz utilities",
+    description="PyTorch training and data visualization utilities",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/nguobadia/PyTorch-Utilities",

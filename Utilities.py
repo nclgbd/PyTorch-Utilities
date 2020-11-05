@@ -45,12 +45,12 @@ def reload_models(model, model_dir, folder_name, device="cuda"):
   
 class DataVisualizationUtilities:
     def __init__(self):
-    '''This class contains common data visualization graphs I like to use, using Seaborn.'''
+        '''This class contains common data visualization graphs I like to use, using Seaborn.'''
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     
     def im_convert(self, tensor, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
-    '''Converts the image making it possible to plot using `matplotlib`.'''
+        '''Converts the image making it possible to plot using `matplotlib`.'''
         image = tensor.clone().detach().numpy()
         image = image.transpose(1, 2, 0)
         image = image * np.array(std) + np.array(mean) # [0, 1] -> [0, 255]
@@ -59,7 +59,7 @@ class DataVisualizationUtilities:
 
 
     def display_dataset(self, loader, classes, batch_size=16, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
-    '''Displays a small portion of the dataset given a dataloader'''
+        '''Displays a small portion of the dataset given a dataloader'''
         dataiter = iter(loader)
         images, labels = dataiter.next()
         fig = plt.figure(figsize=(25, 4))
@@ -71,7 +71,7 @@ class DataVisualizationUtilities:
                 
     
     def display_metric_results(self, model, model_name, loader, labels=[], cmap="Blues_r", batch_size=16, figsize=(7, 7), device="cuda"):
-    '''Displays the classification report along with a heatmap of the confusion matrix'''
+        '''Displays the classification report along with a heatmap of the confusion matrix'''
         with torch.no_grad():
             y_pred, y_true = train_utils.get_predictions(model, loader)
             
@@ -94,7 +94,7 @@ class DataVisualizationUtilities:
         
         
     def display_results(self, loss, acc, val_loss, val_acc, title, figsize=(10, 10)):
-    '''Displays the running training and validation losses and accuracies'''
+        '''Displays the running training and validation losses and accuracies'''
         plt.figure(figsize=figsize)
         plt.subplot(2, 1, 1)
 
@@ -118,7 +118,7 @@ class DataVisualizationUtilities:
 
 
 class Training_Utilities:
-'''This class contains common training functions and methodologies I use when working with PyTorch'''
+    '''This class contains common training functions and methodologies I use when working with PyTorch'''
     def __init__(self, data_dir, model=None):
         self.model = model
         self.data_dir = data_dir
@@ -126,12 +126,12 @@ class Training_Utilities:
 
     
     def loader(self, dataset, batch_size=16, shuffle=True):
-    '''Creates the dataloader'''
+        '''Creates the dataloader'''
         return torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
     
 
     def to_categorical(self, labels):
-    '''Converts the labels from names to integers'''
+        '''Converts the labels from names to integers'''
         labels = np.array(labels)
         label_encoder = LabelEncoder()
         integer_encoded = label_encoder.fit_transform(labels)
@@ -142,7 +142,7 @@ class Training_Utilities:
         
     
     def split_data_and_create_folds(self, n_splits=5, input_size=(299, 299)):
-    '''Loads the images and prepares the folds for training'''
+        '''Loads the images and prepares the folds for training'''
         X = [] # features
         y = [] # labels
 
@@ -169,7 +169,7 @@ class Training_Utilities:
     
     @torch.no_grad() # https://deeplizard.com/learn/video/0LhiS6yu2qQ
     def get_predictions(self, model, loader, device="cuda"):
-    '''Creates a set of predictions given a dataloader and a model.'''
+        '''Creates a set of predictions given a dataloader and a model.'''
         y_pred = torch.tensor([]).to(device, dtype=torch.long)
         y_true = torch.tensor([]).to(device, dtype=torch.long)
         
@@ -185,7 +185,7 @@ class Training_Utilities:
     
     
     def _loop_fn(self, mode, dataset, dataloader, model, criterion, optimizer, ascii_=False, device="cuda"):
-    '''Inner training loop used to predict on the batches given by the dataloader.'''
+        '''Inner training loop used to predict on the batches given by the dataloader.'''
         if mode == "train":
             model.train()
         elif mode == "test":
@@ -213,7 +213,7 @@ class Training_Utilities:
 
     # https://stackoverflow.com/questions/58996242/cross-validation-for-mnist-dataset-with-pytorch-and-sklearn
     def train(self, model, train_dataset, test_dataset, filepath, criterion, optimizer, fold, epochs=1000, patience=5, scheduler=None, batch_size=16, shuffle=True, min_delta=0, device="cuda"):
-    '''Training loop used to iterate through multiple epochs.'''
+        '''Training loop used to iterate through multiple epochs.'''
         early_stopping = EarlyStopping(filepath, fold, min_delta=min_delta)
         train_total_loss = []
         train_total_acc = []
@@ -222,7 +222,7 @@ class Training_Utilities:
         test_loader = self.loader(test_dataset, batch_size=batch_size, shuffle=shuffle)
         train_loader = self.loader(train_dataset, batch_size=batch_size, shuffle=shuffle)
             
-        for epoch in range(1, epochs+1)
+        for epoch in range(1, epochs+1):
             print(f'\nEpoch {epoch}')
             train_cost, train_score = self._loop_fn("train", train_dataset, train_loader, model, criterion, optimizer, device)
             with torch.no_grad():
@@ -252,7 +252,7 @@ class Training_Utilities:
     
                            
 class EarlyStopping():
-'''Custom made early stopping class. Used for exactly what it sounds like.'''
+    '''Custom made early stopping class. Used for exactly what it sounds like.'''
     def __init__(self, filepath, fold, min_delta=0):
         self.filepath = filepath
         self.min_loss = float('inf')
@@ -265,6 +265,7 @@ class EarlyStopping():
         self.best_model = None
         
     def checkpoint(self, model, epoch, loss, acc, optimizer):
+        '''Creates the checkpoint.'''
         print(f' Loss to beat: {(self.min_loss - self.min_delta):.4f}')
         if (self.min_loss - self.min_delta) > loss or self.first_run:
             self.first_run = False
