@@ -44,9 +44,9 @@ def reload_models(model, model_dir, folder_name, device="cuda"):
 
   
 class DataVisualizationUtilities:
-    def __init__(self):
+    def __init__(self, device=None):
         '''This class contains common data visualization graphs I like to use, using Seaborn.'''
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") if not device else device
     
     
     def im_convert(self, tensor, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
@@ -70,12 +70,12 @@ class DataVisualizationUtilities:
             ax.set_title(classes[labels[idx].numpy()])
                 
     
-    def display_metric_results(self, model, model_name, loader, labels=[], cmap="Blues_r", batch_size=16, figsize=(7, 7), device="cuda"):
+    def display_metric_results(self, model, model_name, loader, train_utils, labels=[], cmap="Blues_r", batch_size=16, figsize=(7, 7)):
         '''Displays the classification report along with a heatmap of the confusion matrix'''
         with torch.no_grad():
             y_pred, y_true = train_utils.get_predictions(model, loader)
             
-        y_true = torch.tensor(y_true).to(device, dtype=torch.long)
+        y_true = torch.tensor(y_true).to(self.device, dtype=torch.long)
         stacked = torch.stack((y_true, y_pred.argmax(dim=1)), dim=1)
         xticks = yticks = labels
         
@@ -117,12 +117,12 @@ class DataVisualizationUtilities:
         plt.show() 
 
 
-class Training_Utilities:
+class TrainingUtilities:
     '''This class contains common training functions and methodologies I use when working with PyTorch'''
-    def __init__(self, data_dir, model=None):
+    def __init__(self, data_dir, model=None, device=None):
         self.model = model
         self.data_dir = data_dir
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") if not device else device
 
     
     def loader(self, dataset, batch_size=16, shuffle=True):
@@ -168,23 +168,23 @@ class Training_Utilities:
     
     
     @torch.no_grad() # https://deeplizard.com/learn/video/0LhiS6yu2qQ
-    def get_predictions(self, model, loader, device="cuda"):
+    def get_predictions(self, model, loader):
         '''Creates a set of predictions given a dataloader and a model.'''
-        y_pred = torch.tensor([]).to(device, dtype=torch.long)
-        y_true = torch.tensor([]).to(device, dtype=torch.long)
+        y_pred = torch.tensor([]).to(self.device, dtype=torch.long)
+        y_true = torch.tensor([]).to(self.device, dtype=torch.long)
         
         for images, labels in loader:
-            images = images.to(device, dtype=torch.float)
-            labels = labels.to(device, dtype=torch.long)
+            images = images.to(self.device, dtype=torch.float)
+            labels = labels.to(self.device, dtype=torch.long)
             
-            pred = model(images).to(device, dtype=torch.long)
+            pred = model(images).to(self.device, dtype=torch.long)
             y_pred = torch.cat((y_pred, pred), dim=0)
             y_true = torch.cat((y_true, labels), dim=0)
             
         return y_pred, y_true
     
     
-    def _loop_fn(self, mode, dataset, dataloader, model, criterion, optimizer, ascii_=False, device="cuda"):
+    def _loop_fn(self, mode, dataset, dataloader, model, criterion, optimizer, ascii_=False):
         '''Inner training loop used to predict on the batches given by the dataloader.'''
         if mode == "train":
             model.train()
@@ -193,7 +193,7 @@ class Training_Utilities:
 
         cost = correct = 0
         for feature, target in tqdm(dataloader, ascii=ascii_, desc=mode.title()):
-            feature, target = feature.to(device, dtype=torch.float32), target.to(device, dtype=torch.long)
+            feature, target = feature.to(self.device, dtype=torch.float32), target.to(self.device, dtype=torch.long)
             output = model(feature)
             loss = criterion(output, target)
             model.metric = loss
@@ -212,7 +212,7 @@ class Training_Utilities:
     
 
     # https://stackoverflow.com/questions/58996242/cross-validation-for-mnist-dataset-with-pytorch-and-sklearn
-    def train(self, model, train_dataset, test_dataset, filepath, criterion, optimizer, fold, epochs=1000, patience=5, scheduler=None, batch_size=16, shuffle=True, min_delta=0, device="cuda"):
+    def train(self, model, train_dataset, test_dataset, filepath, criterion, optimizer, fold, epochs=1000, patience=5, scheduler=None, batch_size=16, shuffle=True, min_delta=0):
         '''Training loop used to iterate through multiple epochs.'''
         early_stopping = EarlyStopping(filepath, fold, min_delta=min_delta)
         train_total_loss = []
@@ -224,9 +224,9 @@ class Training_Utilities:
             
         for epoch in range(1, epochs+1):
             print(f'\nEpoch {epoch}')
-            train_cost, train_score = self._loop_fn("train", train_dataset, train_loader, model, criterion, optimizer, device)
+            train_cost, train_score = self._loop_fn("train", train_dataset, train_loader, model, criterion, optimizer, self.device)
             with torch.no_grad():
-                test_cost, test_score = self._loop_fn("test", test_dataset, test_loader, model, criterion, optimizer, device)
+                test_cost, test_score = self._loop_fn("test", test_dataset, test_loader, model, criterion, optimizer, self.device)
                 
             if scheduler:
                 scheduler.step(test_cost)

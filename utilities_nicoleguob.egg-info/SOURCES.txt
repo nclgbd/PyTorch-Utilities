@@ -1,7 +1,0 @@
-README.md
-Utilities.py
-setup.py
-utilities_nicoleguob.egg-info/PKG-INFO
-utilities_nicoleguob.egg-info/SOURCES.txt
-utilities_nicoleguob.egg-info/dependency_links.txt
-utilities_nicoleguob.egg-info/top_level.txt

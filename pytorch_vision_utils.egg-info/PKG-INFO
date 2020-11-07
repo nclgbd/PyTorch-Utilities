@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: pytorch-vision-utils
-Version: 0.0.1
+Version: 0.1.0
 Summary: PyTorch training and data visualization utilities
 Home-page: https://github.com/nguobadia/PyTorch-Utilities
 Author: Nicole Guo
@@ -15,7 +15,7 @@ Description: ## Personal PyTorch Training and Data Visualization Package
         ## Setup
         Just use pip:
         ```bash
-        pip install dist/pytorch_vision_utils-0.0.1-py3-none-any.whl
+        pip install pytorch_vision_utils
         ```
 Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3

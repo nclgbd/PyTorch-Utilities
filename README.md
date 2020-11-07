@@ -7,5 +7,5 @@ Hopefully in the future I can have collegues also find use with this, or extend 
 ## Setup
 Just use pip:
 ```bash
-pip install dist/pytorch_vision_utils-0.0.1-py3-none-any.whl
+pip install pytorch_vision_utils
 ```
