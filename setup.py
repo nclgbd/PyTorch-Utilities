@@ -12,7 +12,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/nclgbd/PyTorch-Utilities",
-    packages=find_packages(),
+    packages=find_packages(include=["custom_models","pytorch_vision_utils",]),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
