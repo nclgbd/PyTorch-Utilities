@@ -6,6 +6,7 @@ import json
 import os
 import hashlib
 import random
+import pretrainedmodels
 
 from datetime import datetime
 from PIL import Image
@@ -22,8 +23,8 @@ from torchvision.utils import save_image
 from torch.utils.data import DataLoader, Dataset
 from tqdm.auto import tqdm
 
-from scripts.MobileNetV2 import MobileNetV2
-from scripts.xception import Xception
+from pretrainedmodels.models.xception import Xception
+from custom_models.MobileNetV2 import MobileNetV2
   
   
 # Helpful functions that can be used throughout 
