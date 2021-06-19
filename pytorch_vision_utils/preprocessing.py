@@ -1,16 +1,20 @@
 ''' This file is for preprocessing all of the different geese images I used for creating the model to train off of.'''
 import cv2 as cv
 import os
+import json
 import random
 import argparse
 
 from Utilities import clear_dirs, random_sampling
 
 curPATH = os.getcwd()
-PATHS = ['na/', 'tow_away_zone/']
+with open("config.json", "r") as f:
+    config = json.load(f)
+    
+PATHS = config["PATHS"]
 
 parser = argparse.ArgumentParser(description="Adds more customization for the dataset.")
-parser.add_argument("--num_of_images", "-n", type=int, required=False, default=500)
+parser.add_argument("--num_of_images", "-n", type=int, required=False, default=5000)
 parser.add_argument("--rebalance", "-r", type=str, required=False, default="True")
 parser.add_argument("--debug", "-d", type=str, required=False, default="True")
 parser.add_argument("--train", "-t", type=str, required=False, default="True")
