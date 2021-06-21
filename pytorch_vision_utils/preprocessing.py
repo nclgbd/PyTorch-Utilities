@@ -58,7 +58,7 @@ def process_images(num_of_images, path, rebalance=True, debug=False):
             
     if rebalance:
         print("Loaded images. Starting random sampling...")
-        dataset = random_sampling(dataset, len(dataset), num_of_images=num_of_images)
+        dataset = random_sampling(dataset, num_of_images=num_of_images)
         print(f"Random sampling completed.")
         
     else:
