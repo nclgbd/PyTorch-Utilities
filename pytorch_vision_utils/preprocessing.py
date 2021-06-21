@@ -5,7 +5,7 @@ import json
 import random
 import argparse
 
-from Utilities import clear_dirs, random_sampling
+from pytorch_vision_utils.Utilities import clear_dirs, random_sampling
 
 curPATH = os.getcwd()
 with open("config.json", "r") as f:

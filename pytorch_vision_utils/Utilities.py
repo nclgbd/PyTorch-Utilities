@@ -24,7 +24,7 @@ from torch.utils.data import DataLoader, Dataset
 from tqdm.auto import tqdm
 
 from pretrainedmodels.models.xception import Xception
-from custom_models.MobileNetV2 import MobileNetV2
+from pretrainedmodels.models.mobilenetv2 import MobileNetV2
   
   
 ### Helpful functions that can be used throughout ###
@@ -258,9 +258,28 @@ class CustomXception(Xception):
             print(self)
 
 
+class CustomMobileNetV2(MobileNetV2):
+        
+    def __init__(self, num_of_classes=2, debug=False):
+        """
+        Wrapper around the Xception class to change the classifier from 1000 to 2 and adds a debug functionality.
+
+        Attributes
+        ----------
+        `num_of_classes` : int, optional\n
+            The number of classes being predicted on, by default 2.
+        `debug` : bool, optional\n
+            Boolean representing whether debug mode is on or off, by default False.
+        """        
+        super(MobileNetV2, self).__init__()
+        if debug:
+            print(self)
+
+
+
 class CustomDataset(Dataset):
     
-    def __init__(self, train_utils: TrainingUtilities, mode="train"):
+    def __init__(self, train_utils, mode="train"):
         """
         Extending class of `torchvision`'s `Dataset` abstract class.
 
@@ -270,7 +289,7 @@ class CustomDataset(Dataset):
         
         Parameters
         ----------
-        `train_utils` : TrainingUtilities\n
+        `train_utils`\n
             Training Utilities instance.
         `mode` : str, optional\n
             String representation of whether we're testing/validating or training, by default "train".
@@ -369,13 +388,13 @@ class DataVisualizationUtilities:
         return image
     
 
-    def display_dataset(self, train_utils:TrainingUtilities):
+    def display_dataset(self, train_utils):
         """
         Displays the dataset. Useful for making sure your data was loaded properly.
 
         Parameters
         ----------
-        `train_utils` : TrainingUtilities\n
+        `train_utils`\n
             TrainingUtilities instance.
         """        
         
@@ -391,13 +410,13 @@ class DataVisualizationUtilities:
             ax.set_title(train_utils.classes[labels[idx].numpy()])
                 
     
-    def display_metric_results(self, train_utils:TrainingUtilities, fold:int, figsize=(7, 7), device="cuda", img_dir="./incorrect_images"):
+    def display_metric_results(self, train_utils, fold:int, figsize=(7, 7), device="cuda", img_dir="./incorrect_images"):
         """
         Displays classification report and confusion matrix.
 
         Parameters
         ----------
-        `train_utils` : TrainingUtilities\n
+        `train_utils`\n
             TrainingUtilities instance.
         `fold` : int\n
             Number representing the current fold during k-fold cross validation.
@@ -514,7 +533,7 @@ class DataVisualizationUtilities:
         plt.show()
 
         
-    def display_roc_curve(self, train_utils:TrainingUtilities, figsize=(7, 7)):
+    def display_roc_curve(self, train_utils, figsize=(7, 7)):
         """
         Displays ROC curve.
 
@@ -716,9 +735,20 @@ class TrainingUtilities:
         ----------
         `model_name` : `str`\n
             The new model name.
+            
+        Raises
+        ------
+        `ValueError`
+            Raised when there is an unrecognized `model_name`.
         """        
-        self.model = MobileNetV2(n_class=len(self.classes)).to(self.device) if model_name == "mobilenetv2" elif CustomXception(num_of_classes=len(self.classes)).to(self.device)
-                                    if model_name == "xception" else nn.Module()
+        if model_name == "mobilenetv2":
+            self.model = MobileNetV2(n_class=len(self.classes)).to(self.device)
+            
+        elif model_name == "xception":
+            self.model =  CustomXception(num_of_classes=len(self.classes)).to(self.device)
+        
+        else:
+            raise ValueError("Unrecognized model name.")
 
 
     def load_weights(self, model_name:str, model_weights_path:str, mode="test"):
@@ -928,7 +958,7 @@ class TrainingUtilities:
         `show_graphs` : `bool`, `optional`\n
             Boolean representing whether or not to display graphs, by default True.
         `dry_run` : `bool`, `optional`\n
-            Boolean representing whether we're training to evaluate hyperparameter tuning or training the model for comel comparisons, by default True.
+            Boolean representing whether we're training to evaluate hyperparameter tuning or training the model for model comparisons, by default True.
 
         Returns
         -------
@@ -1039,8 +1069,7 @@ class TrainingUtilities:
             
         return early_stopping.min_loss, early_stopping.max_acc
     
-  
-                   
+                
 class EarlyStopping():
     
     def __init__(self, model_name:str, filepath:str, fold:int, min_delta=0):

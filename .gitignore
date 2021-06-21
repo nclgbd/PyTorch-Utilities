@@ -1,4 +1,5 @@
 .vscode/
 __pycache__/
 deploy_scripts/
-scripts/
+tests/
+build.bat
