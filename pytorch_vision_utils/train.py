@@ -1,3 +1,6 @@
+"""
+    Script for training a model.
+"""
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,9 +17,10 @@ from torch import nn, optim
 from torchvision import datasets, transforms, models
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
-from pretrainedmodels.models.xception import Xception
-from custom_models.MobileNetV2 import MobileNetV2
-from Utilities import DataVizUtilities, Training_Utilities
+# from pretrainedmodels.models.xception import Xception
+# from pretrainedmodels.models.mobilenetv2 import MobileNetV2
+from pytorch_vision_utils.Utilities import DataVisualizationUtilities, TrainingUtilities
+
 
 
 ##################### D E F A U L T S #####################
@@ -35,16 +39,19 @@ RESULTS_DIR = str(os.path.join(cwd, "model_results"))
 INC_DIR = str(os.path.join(cwd, "incorrect_images"))
 DATA_DIR = str(os.path.join(cwd, "data"))
 
-train_utils = Training_Utilities(data_dir=DATA_DIR)
-dataviz_utils = DataVizUtilities()
+train_utils = TrainingUtilities(data_dir=DATA_DIR)
+dataviz_utils = DataVisualizationUtilities()
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("Using: ", device)
 
 
 ##################### T R A I N I N G #####################
-loss, acc = train_utils.train(model_name=MODEL_NAME, model_path=MODEL_DIR, inc_path=INC_DIR, show_graphs=True, dry_run=False)
 
-with open(RESULTS_DIR+"/"+MODEL_NAME+".txt", "w+") as f:
-    f.write(f"Loss: {loss}\tAccuracy: {acc}")
+if __name__ == "__main__":
+        
+    loss, acc = train_utils.train(model_name=MODEL_NAME, model_path=MODEL_DIR, inc_path=INC_DIR, show_graphs=True, dry_run=False)
+
+    with open(RESULTS_DIR+"/"+MODEL_NAME+".txt", "w+") as f:
+        f.write(f"Loss: {loss}\tAccuracy: {acc}")
 

@@ -1,0 +1,5 @@
+{
+    "name": "Python Publish",
+    "description": "Build and push onto GitHub.",
+    "categories": ["Python"]
+}
