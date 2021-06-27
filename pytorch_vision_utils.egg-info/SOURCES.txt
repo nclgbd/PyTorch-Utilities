@@ -1,6 +1,7 @@
 LICENSE
 README.md
 setup.py
+pytorch_vision_utils/CustomModels.py
 pytorch_vision_utils/Utilities.py
 pytorch_vision_utils/__init__.py
 pytorch_vision_utils/preprocessing.py

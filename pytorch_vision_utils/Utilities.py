@@ -408,7 +408,7 @@ class DataVisualizationUtilities:
         """        
         
         with torch.no_grad():
-            y_pred, y_true = train_utils.get_predictions(fold, img_dir=img_dir)
+            y_pred, y_true = train_utils.get_predictions(img_dir=img_dir)
             
         y_true = torch.tensor(y_true).to(device, dtype=torch.long)
         xticks = yticks = train_utils.classes
@@ -524,7 +524,7 @@ class DataVisualizationUtilities:
         """        
         
         with torch.no_grad():
-            y_pred, y_true = train_utils.get_predictions(0, img_dir="")
+            y_pred, y_true = train_utils.get_predictions(img_dir="")
             y_pred, y_true = y_pred.argmax(dim=1).cpu().numpy(), torch.tensor(y_true).cpu().numpy()
         
         fpr, tpr, thresholds = roc_curve(y_pred, y_true)
@@ -659,8 +659,8 @@ class TrainingUtilities:
         
         _model_names = ["alexnet", "densenet121", "densenet169", "densenet201", "densenet161", 
                         "resnet18", "resnet34", "resnet50", "resnet101", "resnet151", 
-                        "inceptionv3", "squeezenet1_0", "squeezenet1_1", 
-                        "vgg11", "vgg13", "vgg16", "vgg19", "xception", "mobilenetv2"]
+                        "inceptionv3", "vgg11", "vgg13", "vgg16", "vgg19", 
+                        "xception", "mobilenetv2"]
         
         _custom_models = [CustomAlexNet(num_of_classes=len(self.classes)), 
                         CustomDenseNet121(num_of_classes=len(self.classes)),
@@ -673,8 +673,6 @@ class TrainingUtilities:
                         CustomResNet101(num_of_classes=len(self.classes)),
                         CustomResNet152(num_of_classes=len(self.classes)),
                         CustomInceptionV3(num_of_classes=len(self.classes)),
-                        CustomSqueezeNet1_0(num_of_classes=len(self.classes)),
-                        CustomSqueezeNet1_1(num_of_classes=len(self.classes)),
                         CustomVGG11(num_of_classes=len(self.classes)),
                         CustomVGG13(num_of_classes=len(self.classes)),
                         CustomVGG16(num_of_classes=len(self.classes)),
