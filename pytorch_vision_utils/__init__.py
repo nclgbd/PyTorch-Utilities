@@ -1,7 +1,7 @@
 import os
 
 # Have to manually install
-import pretrainedmodels
+from . import pretrainedmodels
 
 os.system("pip install -r requirements.txt")
 
