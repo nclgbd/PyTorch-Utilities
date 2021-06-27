@@ -1,5 +1,7 @@
 import os
 
-print("Checking for and/or installing required packages...")
+# Have to manually install
+import pretrainedmodels
+
 os.system("pip install -r requirements.txt")
-print("Complete!")
+

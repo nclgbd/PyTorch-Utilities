@@ -13,6 +13,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/nclgbd/PyTorch-Utilities",
+    install_requires=['pretrainedmodels'],
     packages=find_packages(),
     scripts=["pytorch_vision_utils/train.py", "pytorch_vision_utils/preprocessing.py"],
     classifiers=[

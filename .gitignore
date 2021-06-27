@@ -1,5 +1,4 @@
 .vscode/
 __pycache__/
-deploy_scripts/
 tests/
-build.bat
+pretrained-models.pytorch/

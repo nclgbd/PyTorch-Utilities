@@ -8,4 +8,5 @@ pytorch_vision_utils/train.py
 pytorch_vision_utils.egg-info/PKG-INFO
 pytorch_vision_utils.egg-info/SOURCES.txt
 pytorch_vision_utils.egg-info/dependency_links.txt
+pytorch_vision_utils.egg-info/requires.txt
 pytorch_vision_utils.egg-info/top_level.txt
