@@ -23,26 +23,9 @@ from torchvision.utils import save_image
 from torch.utils.data import DataLoader, Dataset
 from tqdm.auto import tqdm
 
-from .CustomModels import CustomXception
-from .CustomModels import CustomMobileNetV2
-from .CustomModels import CustomVGG16
-from .CustomModels import CustomVGG19
-from .CustomModels import CustomVGG11
-from .CustomModels import CustomVGG13
-from .CustomModels import CustomInceptionV3
-from .CustomModels import CustomAlexNet
-from .CustomModels import CustomDenseNet121
-from .CustomModels import CustomDenseNet161
-from .CustomModels import CustomDenseNet169
-from .CustomModels import CustomDenseNet201
-from .CustomModels import CustomResNet18
-from .CustomModels import CustomResNet34
-from .CustomModels import CustomResNet50
-from .CustomModels import CustomResNet101
-from .CustomModels import CustomResNet152
-from .CustomModels import CustomSqueezeNet1_0
-from .CustomModels import CustomSqueezeNet1_1
-  
+from .CustomModels import AlexNetWrapper, DenseNetWrapper, InceptionV3Wrapper, MobileNetV2Wrapper
+from .CustomModels import ResNetWrapper, SqueezeNetWrapper, VGGWrapper, XceptionWrapper
+from .CustomModels import get_avail_models
   
 ### Helpful functions that can be used throughout ###
 def get_timestamp():
@@ -544,9 +527,6 @@ class DataVisualizationUtilities:
 
 
 class TrainingUtilities:
-
-    
-
     
     def __init__(self, data_dir:str, model_dir:str, model_name:str, parameters_path="parameters.json", mode="train"):
         """
@@ -572,12 +552,12 @@ class TrainingUtilities:
         `mode` : `str`, `optional`\n
             String representation of the mode of training, by default "train"
         """  
-              
-        self.model = nn.Module()
+        
         self.data_dir = data_dir
         self.model_dir = model_dir
         self.parameters_path = parameters_path
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")      
+        self.model = nn.Module().to(device=self.device)
         
         # VARIABLE INITIALIZATION
         self.model_name = model_name
@@ -607,7 +587,7 @@ class TrainingUtilities:
         self.avail_models = dict()
         
         
-    def set_model_parameters(self,  model_name:str, mode="train"):
+    def set_model_parameters(self,  model_name:str, mode="train", debug=False):
         """
         Switches the model parameters based on which model architecture in use and whether we are training
         or testing. 
@@ -657,31 +637,13 @@ class TrainingUtilities:
         self.std = settings["STD"]
         self.mode = mode
         
-        _model_names = ["alexnet", "densenet121", "densenet169", "densenet201", "densenet161", 
-                        "resnet18", "resnet34", "resnet50", "resnet101", "resnet151", 
-                        "inceptionv3", "vgg11", "vgg13", "vgg16", "vgg19", 
-                        "xception", "mobilenetv2"]
         
-        _custom_models = [CustomAlexNet(num_of_classes=len(self.classes)), 
-                        CustomDenseNet121(num_of_classes=len(self.classes)),
-                        CustomDenseNet169(num_of_classes=len(self.classes)),
-                        CustomDenseNet201(num_of_classes=len(self.classes)),
-                        CustomDenseNet161(num_of_classes=len(self.classes)),
-                        CustomResNet18(num_of_classes=len(self.classes)),
-                        CustomResNet34(num_of_classes=len(self.classes)),
-                        CustomResNet50(num_of_classes=len(self.classes)),
-                        CustomResNet101(num_of_classes=len(self.classes)),
-                        CustomResNet152(num_of_classes=len(self.classes)),
-                        CustomInceptionV3(num_of_classes=len(self.classes)),
-                        CustomVGG11(num_of_classes=len(self.classes)),
-                        CustomVGG13(num_of_classes=len(self.classes)),
-                        CustomVGG16(num_of_classes=len(self.classes)),
-                        CustomVGG19(num_of_classes=len(self.classes)),
-                        CustomXception(num_of_classes=len(self.classes)),
-                        CustomMobileNetV2(num_of_classes=len(self.classes))]
-        
-        self.avail_models = dict(zip(_model_names, _custom_models))       
-        self.model = self.avail_models[self.model_name]
+        self.avail_models = get_avail_models()   
+        for i, models in enumerate(self.avail_models[0]):
+            if self.model_name in models:
+                self.model = self.avail_models[1][i](num_classes=len(self.classes), model_name=self.model_name, debug=debug).model.to(device=self.device)
+                break
+            
         
         self.train_transform = transforms.Compose([transforms.Resize(self.input_size),
                                                    transforms.ColorJitter(hue=self.hue, brightness=self.brightness,
@@ -737,7 +699,7 @@ class TrainingUtilities:
         self.loader.dataset.mode = new_mode
 
 
-    def _set_model(self, model_name:str):
+    def _set_model(self, model_name:str, debug=False):
         """
         Changes the model based.
 
@@ -751,23 +713,12 @@ class TrainingUtilities:
         `ValueError`
             Raised when there is an unrecognized `model_name`.
         """        
-        if model_name == "mobilenetv2":
-            self.model = CustomMobileNetV2(num_classes=len(self.classes)).to(self.device)
-            
-        elif model_name == "xception":
-            self.model =  CustomXception(num_of_classes=len(self.classes)).to(self.device)
-            
-        elif model_name == "alexnet":
-            self.model =  CustomAlexNet(num_of_classes=len(self.classes)).to(self.device)
-            
-        elif model_name == "densenet121":
-            self.model =  CustomDenseNet121(num_of_classes=len(self.classes)).to(self.device)
-        
-        else:
-            raise ValueError("Unrecognized model name.")
+        self.model = self.avail_models[model_name]
+        if debug:
+            print(type(self.model), self.model)
 
 
-    def load_weights(self, model_name:str, model_weights_path:str, mode="test"):
+    def load_weights(self, model_name:str, model_weights_path:str, mode="test", debug=False):
         """
         Reloads a model with specific weights.
 
@@ -782,8 +733,7 @@ class TrainingUtilities:
         """        
         
         weights = torch.load(model_weights_path)["model_state_dict"]
-        self.set_model_parameters(model_name, mode=mode)
-        self._set_model(model_name)
+        self.set_model_parameters(model_name, mode=mode, debug=debug)
             
         self.model.load_state_dict(weights)
         self.model.eval()
@@ -959,7 +909,7 @@ class TrainingUtilities:
         return y_pred, y_true
     
     
-    def train(self, model_name:str, model_path:str, inc_path:str, show_graphs=True, dry_run=True) -> tuple:
+    def train(self, model_name:str, model_path:str, inc_path:str, show_graphs=True, dry_run=True, debug=False) -> tuple:
         """
         Wrapper function for the actual training method. Will likely be edited in the future to be more customizable.
 
@@ -982,14 +932,12 @@ class TrainingUtilities:
             Returns a tuple containing the average loss and average accuracy.
 
         """        
-        self.set_model_parameters(model_name=model_name)
+        self.set_model_parameters(model_name=model_name, debug=debug)
         
         dir_names = create_fold_names(self.model_name, n_splits=self.n_splits)
         create_fold_dirs(inc_path, dir_names)
         losses = []
         accuracies = []
-        
-        self._set_model(self.model_name)
         
         if dry_run:
             for fold, (train_idx, test_idx) in enumerate(self.sign_dataset.folds):

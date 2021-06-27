@@ -1,393 +1,252 @@
 """Contains all of the available models for customization. Wrapper for another module I've been messing with.
 """
 
-from pretrainedmodels import alexnet
-from pretrainedmodels import densenet121
-from pretrainedmodels import densenet169
-from pretrainedmodels import densenet201
-from pretrainedmodels import densenet161
-from pretrainedmodels import resnet18
-from pretrainedmodels import resnet34
-from pretrainedmodels import resnet50
-from pretrainedmodels import resnet101
-from pretrainedmodels import resnet152
-from pretrainedmodels import inceptionv3
-from pretrainedmodels import squeezenet1_0
-from pretrainedmodels import squeezenet1_1
-from pretrainedmodels import vgg11
-from pretrainedmodels import vgg11_bn
-from pretrainedmodels import vgg13
-from pretrainedmodels import vgg13_bn
-from pretrainedmodels import vgg16
-from pretrainedmodels import vgg16_bn
-from pretrainedmodels import vgg19_bn
-from pretrainedmodels import vgg19
-
 from pretrainedmodels.models.xception import Xception
 from pretrainedmodels.models.mobilenetv2 import MobileNetV2
 
+from torchvision.models import alexnet
+from torchvision.models import densenet121, densenet161, densenet169, densenet201
+from torchvision.models import inception_v3
+from torchvision.models import resnet18, resnet34, resnet50, resnet101, resnet152
+from torchvision.models import squeezenet1_0, squeezenet1_1
+from torchvision.models import vgg11, vgg11_bn, vgg13, vgg13_bn, vgg16, vgg16_bn, vgg19, vgg19_bn
 
-### Specially made homegrown abstraction of annoying torch shit
 
 
-class CustomVGG19():
+def get_avail_models() -> dict:
+    """
+    Gets all of the available pretrained models initialized.
     
-    def __init__(self, num_of_classes=2, debug=False):
+    Returns
+    -------
+    `dict`\n
+        Dictionary representation of model names (key) mapped with the actual model (value).
+    """  
+ 
+    
+    model_names = [["alexnet"], 
+                   ['densenet121', 'densenet161', 'densenet169', 'densenet201'], 
+                   ["inceptionv3"], 
+                   ["mobilenetv2"], 
+                   ['resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152'], 
+                   ['squeezenet1_0', 'squeezenet1_1'], 
+                   ['vgg11', 'vgg11_bn', 'vgg13', 'vgg13_bn', 'vgg16', 'vgg16_bn', 'vgg19', 'vgg19_bn'], 
+                   ["xception"]]
+    
+   
+
+    model_wrappers = [AlexNetWrapper, 
+                    DenseNetWrapper,
+                    InceptionV3Wrapper,
+                    MobileNetV2Wrapper,
+                    ResNetWrapper,
+                    SqueezeNetWrapper,
+                    VGGWrapper,
+                    XceptionWrapper]
+
+    return (model_names, model_wrappers)
+
+
+
+class VGGWrapper():
+    _vgg_names = ['vgg11', 'vgg11_bn', 'vgg13', 'vgg13_bn', 'vgg16', 'vgg16_bn', 'vgg19', 'vgg19_bn']
+    _vgg_models = [vgg11, vgg11_bn, vgg13, vgg13_bn, vgg16, vgg16_bn, vgg19, vgg19_bn]
+    _vgg_dict = dict(zip(_vgg_names, _vgg_models))
+    
+    def __init__(self, model_name, num_classes=2, debug=False):
         """
-        Wrapper around the vgg19 function to change the classifier from 1000 to 2 and adds a debug functionality.
+        Wrapper around the vgg function to change the classifier from 1000 to 2 and adds a debug functionality.
 
         Attributes
         ----------
-        `num_of_classes` : int, optional\n
+        `model_name`: `str`\n
+            String representation of the model name.
+        `num_classes` : int, optional\n
             The number of classes being predicted on, by default 2.
         `debug` : bool, optional\n
             Boolean representing whether debug mode is on or off, by default False.
         """  
-        self.model = vgg19(num_classes=num_of_classes)
+        
+        self.num_classes = num_classes
+        self.model = _vgg_dict[model_name](num_classes=self.num_classes)
         
         if debug:
             print(self.model)
 
 
-class CustomVGG16():
+
+
+class SqueezeNetWrapper():
+    _squeeze_names = ['squeezenet1_0', 'squeezenet1_1']
+    _squeeze_models = [squeezenet1_0, squeezenet1_1]
+    _squeeze_dict = dict(zip(_squeeze_names, _squeeze_models))
     
-    def __init__(self, num_of_classes=2, debug=False):
+    def __init__(self, model_name, num_classes=2, debug=False):
         """
-        Wrapper around the vgg16 function to change the classifier from 1000 to 2 and adds a debug functionality.
+        Wrapper around the squeezenet function to change the classifier from 1000 to 2 and adds a debug functionality.
 
         Attributes
         ----------
-        `num_of_classes` : int, optional\n
+        `model_name`: `str`\n
+            String representation of the model name.
+        `num_classes` : int, optional\n
             The number of classes being predicted on, by default 2.
         `debug` : bool, optional\n
             Boolean representing whether debug mode is on or off, by default False.
         """  
-        self.model = vgg16(num_classes=num_of_classes)
+        
+        self.num_classes = num_classes
+        self.model = _squeeze_dict[model_name](num_classes=self.num_classes)
         
         if debug:
             print(self.model)
 
 
-class CustomVGG13():
+
+class InceptionV3Wrapper():
     
-    def __init__(self, num_of_classes=2, debug=False):
-        """
-        Wrapper around the vgg13 function to change the classifier from 1000 to 2 and adds a debug functionality.
-
-        Attributes
-        ----------
-        `num_of_classes` : int, optional\n
-            The number of classes being predicted on, by default 2.
-        `debug` : bool, optional\n
-            Boolean representing whether debug mode is on or off, by default False.
-        """  
-        self.model = vgg13(num_classes=num_of_classes)
-        
-        if debug:
-            print(self.model)
-
-
-class CustomVGG11():
-    
-    def __init__(self, num_of_classes=2, debug=False):
-        """
-        Wrapper around the vgg11 function to change the classifier from 1000 to 2 and adds a debug functionality.
-
-        Attributes
-        ----------
-        `num_of_classes` : int, optional\n
-            The number of classes being predicted on, by default 2.
-        `debug` : bool, optional\n
-            Boolean representing whether debug mode is on or off, by default False.
-        """  
-        self.model = vgg11(num_classes=num_of_classes)
-        
-        if debug:
-            print(self.model)
-
-
-class CustomSqueezeNet1_1():
-    
-    def __init__(self, num_of_classes=2, debug=False):
-        """
-        Wrapper around the squeezenet1_1 function to change the classifier from 1000 to 2 and adds a debug functionality.
-
-        Attributes
-        ----------
-        `num_of_classes` : int, optional\n
-            The number of classes being predicted on, by default 2.
-        `debug` : bool, optional\n
-            Boolean representing whether debug mode is on or off, by default False.
-        """  
-        self.model = squeezenet1_1(num_classes=num_of_classes)
-        
-        if debug:
-            print(self.model)
-
-
-class CustomSqueezeNet1_0():
-    
-    def __init__(self, num_of_classes=2, debug=False):
-        """
-        Wrapper around the squeezenet1_0 function to change the classifier from 1000 to 2 and adds a debug functionality.
-
-        Attributes
-        ----------
-        `num_of_classes` : int, optional\n
-            The number of classes being predicted on, by default 2.
-        `debug` : bool, optional\n
-            Boolean representing whether debug mode is on or off, by default False.
-        """  
-        self.model = squeezenet1_0(num_classes=num_of_classes)
-        
-        if debug:
-            print(self.model)
-
-
-class CustomInceptionV3():
-    
-    def __init__(self, num_of_classes=2, debug=False):
+    def __init__(self, num_classes=2, debug=False):
         """
         Wrapper around the inceptionv3 function to change the classifier from 1000 to 2 and adds a debug functionality.
 
         Attributes
         ----------
-        `num_of_classes` : int, optional\n
+        `model_name`: `str`\n
+            String representation of the model name.
+        `num_classes` : int, optional\n
             The number of classes being predicted on, by default 2.
         `debug` : bool, optional\n
             Boolean representing whether debug mode is on or off, by default False.
         """  
-        self.model = inceptionv3(num_classes=num_of_classes)
+        
+        self.num_classes = num_classes
+        self.model = inception_v3(num_classes=num_classes)
         
         if debug:
-            print(self.model)
+            print(self)
 
 
-class CustomResNet152():
+class ResNetWrapper():
+    _resnet_names = ['resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152']
+    _resnet_models = [resnet18, resnet34, resnet50, resnet101, resnet152]
+    _resnet_dict = dict(zip(_resnet_names, _resnet_models))
     
-    def __init__(self, num_of_classes=2, debug=False):
+    def __init__(self, model_name, num_classes=2, debug=False):
         """
-        Wrapper around the resnet152 function to change the classifier from 1000 to 2 and adds a debug functionality.
+        Wrapper around the resnet function to change the classifier from 1000 to 2 and adds a debug functionality.
 
         Attributes
         ----------
-        `num_of_classes` : int, optional\n
+        `model_name`: `str`\n
+            String representation of the model name.
+        `num_classes` : `int`, optional\n
             The number of classes being predicted on, by default 2.
-        `debug` : bool, optional\n
+        `debug` : `bool`, optional\n
             Boolean representing whether debug mode is on or off, by default False.
         """  
-        self.model = resnet152(num_classes=num_of_classes)
+        
+        self.num_classes = num_classes
+        self.model = _resnet_dict[model_name](num_classes=self.num_classes)
         
         if debug:
             print(self.model)
 
 
-class CustomResNet101():
+
+class DenseNetWrapper():
+    _densenet_names = ['densenet121', 'densenet161', 'densenet169', 'densenet201']
+    _densenet_models = [densenet121, densenet161, densenet169, densenet201]
+    _densenet_dict = dict(zip(_densenet_names, _densenet_models))
     
-    def __init__(self, num_of_classes=2, debug=False):
+    def __init__(self, model_name, num_classes=2, debug=False):
         """
-        Wrapper around the resnet101 function to change the classifier from 1000 to 2 and adds a debug functionality.
+        Wrapper around the densenet function to change the classifier from 1000 to 2 and adds a debug functionality.
 
         Attributes
         ----------
-        `num_of_classes` : int, optional\n
+        `model_name`: `str`\n
+            String representation of the model name.
+        `num_classes` : `int`, optional\n
             The number of classes being predicted on, by default 2.
-        `debug` : bool, optional\n
+        `debug` : `bool`, optional\n
             Boolean representing whether debug mode is on or off, by default False.
-        """  
-        self.model = resnet101(num_classes=num_of_classes)
+        """    
+        
+        self.num_classes = num_classes
+        self.model = _densenet_dict[model_name](num_classes=self.num_classes)
         
         if debug:
             print(self.model)
 
-
-class CustomResNet50():
-    
-    def __init__(self, num_of_classes=2, debug=False):
-        """
-        Wrapper around the resnet50 function to change the classifier from 1000 to 2 and adds a debug functionality.
-
-        Attributes
-        ----------
-        `num_of_classes` : int, optional\n
-            The number of classes being predicted on, by default 2.
-        `debug` : bool, optional\n
-            Boolean representing whether debug mode is on or off, by default False.
-        """  
-        self.model = resnet50(num_classes=num_of_classes)
-        
-        if debug:
-            print(self.model)
-
-
-class CustomResNet34():
-    
-    def __init__(self, num_of_classes=2, debug=False):
-        """
-        Wrapper around the resnet34 function to change the classifier from 1000 to 2 and adds a debug functionality.
-
-        Attributes
-        ----------
-        `num_of_classes` : int, optional\n
-            The number of classes being predicted on, by default 2.
-        `debug` : bool, optional\n
-            Boolean representing whether debug mode is on or off, by default False.
-        """  
-        self.model = resnet34(num_classes=num_of_classes)
-        
-        if debug:
-            print(self.model)
-
-
-class CustomResNet18():
-    
-    def __init__(self, num_of_classes=2, debug=False):
-        """
-        Wrapper around the resnet18 function to change the classifier from 1000 to 2 and adds a debug functionality.
-
-        Attributes
-        ----------
-        `num_of_classes` : int, optional\n
-            The number of classes being predicted on, by default 2.
-        `debug` : bool, optional\n
-            Boolean representing whether debug mode is on or off, by default False.
-        """  
-        self.model = resnet18(num_classes=num_of_classes)
-        
-        if debug:
-            print(self.model)
-
-
-class CustomDenseNet161():
-    
-    def __init__(self, num_of_classes=2, debug=False):
-        """
-        Wrapper around the densenet161 function to change the classifier from 1000 to 2 and adds a debug functionality.
-
-        Attributes
-        ----------
-        `num_of_classes` : int, optional\n
-            The number of classes being predicted on, by default 2.
-        `debug` : bool, optional\n
-            Boolean representing whether debug mode is on or off, by default False.
-        """  
-        self.model = densenet161(num_classes=num_of_classes)
-        
-        if debug:
-            print(self.model)
-
-
-class CustomDenseNet201():
-    
-    def __init__(self, num_of_classes=2, debug=False):
-        """
-        Wrapper around the densenet201 function to change the classifier from 1000 to 2 and adds a debug functionality.
-
-        Attributes
-        ----------
-        `num_of_classes` : int, optional\n
-            The number of classes being predicted on, by default 2.
-        `debug` : bool, optional\n
-            Boolean representing whether debug mode is on or off, by default False.
-        """  
-        self.model = densenet201(num_classes=num_of_classes)
-        
-        if debug:
-            print(self.model)
-
-
-class CustomDenseNet169():
-    
-    def __init__(self, num_of_classes=2, debug=False):
-        """
-        Wrapper around the densenet169 function to change the classifier from 1000 to 2 and adds a debug functionality.
-
-        Attributes
-        ----------
-        `num_of_classes` : int, optional\n
-            The number of classes being predicted on, by default 2.
-        `debug` : bool, optional\n
-            Boolean representing whether debug mode is on or off, by default False.
-        """  
-        self.model = densenet169(num_classes=num_of_classes)
-        
-        if debug:
-            print(self.model)
-
-         
-class CustomDenseNet121():
-    
-    def __init__(self, num_of_classes=2, debug=False):
-        """
-        Wrapper around the densenet121 function to change the classifier from 1000 to 2 and adds a debug functionality.
-
-        Attributes
-        ----------
-        `num_of_classes` : int, optional\n
-            The number of classes being predicted on, by default 2.
-        `debug` : bool, optional\n
-            Boolean representing whether debug mode is on or off, by default False.
-        """  
-        self.model = densenet121(num_classes=num_of_classes)
-        
-        if debug:
-            print(self.model)
             
-            
-            
-class CustomAlexNet():
+                    
+class AlexNetWrapper():
     
-    def __init__(self, num_of_classes=2, debug=False):
+    def __init__(self, model_name, num_classes=2, debug=False):
         """
         Wrapper around the alexnet function to change the classifier from 1000 to 2 and adds a debug functionality.
 
         Attributes
         ----------
-        `num_of_classes` : int, optional\n
+        `model_name`: `str`\n
+            String representation of the model name.
+        `num_classes` : int, optional\n
             The number of classes being predicted on, by default 2.
         `debug` : bool, optional\n
             Boolean representing whether debug mode is on or off, by default False.
         """  
-        self.model = alexnet(num_classes=num_of_classes)
+       
+        self.num_classes = num_classes
+        self.model = alexnet(num_classes=self.num_classes)
         
         if debug:
             print(self.model)
       
       
    
-class CustomXception(Xception):
+class XceptionWrapper(Xception):
         
-    def __init__(self, num_of_classes=2, debug=False):
+    def __init__(self, model_name, num_classes=2, debug=False):
         """
-        Wrapper around the Xception class to change the classifier from 1000 to 2 and adds a debug functionality.
+        Wrapper around the xception class to change the classifier from 1000 to 2 and adds a debug functionality.
 
         Attributes
         ----------
-        `num_of_classes` : int, optional\n
+        `model_name`: `str`\n
+            String representation of the model name.
+        `num_classes` : int, optional\n
             The number of classes being predicted on, by default 2.
         `debug` : bool, optional\n
             Boolean representing whether debug mode is on or off, by default False.
         """        
-        super(CustomXception, self).__init__()
-        if debug:
-            print(self)
-
-
-class CustomMobileNetV2(MobileNetV2):
+        super(Xception, self).__init__()
+        self.num_classes = num_classes
+        self.model = Xception(num_classes=num_classes)      
         
-    def __init__(self, num_of_classes=2, debug=False):
+        if debug:
+            print(self.model)
+
+
+class MobileNetV2Wrapper(MobileNetV2):
+        
+    def __init__(self, model_name, num_classes=2, debug=False):
         """
         Wrapper around the mobilenetv2 class to change the classifier from 1000 to 2 and adds a debug functionality.
 
         Attributes
         ----------
-        `num_of_classes` : int, optional\n
+        `model_name`: `str`\n
+            String representation of the model name.
+        `num_classes` : int, optional\n
             The number of classes being predicted on, by default 2.
         `debug` : bool, optional\n
             Boolean representing whether debug mode is on or off, by default False.
-        """        
+        """  
+              
         super(MobileNetV2, self).__init__()
+        self.model = MobileNetV2(num_classes=num_classes) 
+        
         if debug:
-            print(self)
+            print(self.model)
             
         
