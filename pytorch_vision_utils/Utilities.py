@@ -23,8 +23,8 @@ from torchvision.utils import save_image
 from torch.utils.data import DataLoader, Dataset
 from tqdm.auto import tqdm
 
-from pretrainedmodels.models.xception import Xception
-from pretrainedmodels.models.mobilenetv2 import MobileNetV2
+from .CustomModels import CustomXception
+from .CustomModels import CustomMobileNetV2
   
   
 ### Helpful functions that can be used throughout ###
@@ -239,41 +239,7 @@ def random_sampling(dataset:dict, num_of_images=1000) -> list:
 
 
 
-### Specially made homegrown abstraction of annoying torch shit
-class CustomXception(Xception):
-        
-    def __init__(self, num_of_classes=2, debug=False):
-        """
-        Wrapper around the Xception class to change the classifier from 1000 to 2 and adds a debug functionality.
 
-        Attributes
-        ----------
-        `num_of_classes` : int, optional\n
-            The number of classes being predicted on, by default 2.
-        `debug` : bool, optional\n
-            Boolean representing whether debug mode is on or off, by default False.
-        """        
-        super(CustomXception, self).__init__()
-        if debug:
-            print(self)
-
-
-class CustomMobileNetV2(MobileNetV2):
-        
-    def __init__(self, num_of_classes=2, debug=False):
-        """
-        Wrapper around the Xception class to change the classifier from 1000 to 2 and adds a debug functionality.
-
-        Attributes
-        ----------
-        `num_of_classes` : int, optional\n
-            The number of classes being predicted on, by default 2.
-        `debug` : bool, optional\n
-            Boolean representing whether debug mode is on or off, by default False.
-        """        
-        super(MobileNetV2, self).__init__()
-        if debug:
-            print(self)
 
 
 
