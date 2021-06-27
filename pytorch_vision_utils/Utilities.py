@@ -620,7 +620,7 @@ class TrainingUtilities:
         self.sign_dataset = None
         self.loader = None
         self.mode = mode
-        self.set_model_parameters(self.model_name, mode=self.mode)
+        # self.set_model_parameters(self.model_name, mode=self.mode)
         
         
     def set_model_parameters(self,  model_name:str, mode="train"):
@@ -973,7 +973,7 @@ class TrainingUtilities:
         losses = []
         accuracies = []
         
-        self.change_model(self.model_name)
+        self._change_model(self.model_name)
         
         if dry_run:
             for fold, (train_idx, test_idx) in enumerate(self.sign_dataset.folds):
