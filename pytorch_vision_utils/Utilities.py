@@ -567,7 +567,7 @@ class DataVisualizationUtilities:
 
 class TrainingUtilities:
     
-    def __init__(self, data_dir:str, model_name:str, parameters_path="parameters.json", mode="train"):
+    def __init__(self, data_dir:str, model_dir:str, model_name:str, parameters_path="parameters.json", mode="train"):
         """
         Useful functions for training PyTorch models. Providing a `/path/to/parameters.json` is required to work properly, assumed to be in
         the project directory. Encapsulates all of the hyperparameter tuning into one convenient class to toy with by hand or automate by 
@@ -582,6 +582,8 @@ class TrainingUtilities:
         ----------
         `data_dir` : `str`\n
             String representation of the path to the directory containing the classes.
+        `model_dir` : `str`\n
+            String representation of the path to the directory of which to save the models.
         `model_name` : `str`\n
             Name of the model.
         `parameters_path` : `str`, `optional`\n
@@ -592,6 +594,7 @@ class TrainingUtilities:
               
         self.model = nn.Module()
         self.data_dir = data_dir
+        self.model_dir = model_dir
         self.parameters_path = parameters_path
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
@@ -727,7 +730,7 @@ class TrainingUtilities:
         self.loader.dataset.mode = new_mode
 
 
-    def _change_model(self, model_name:str):
+    def _set_model(self, model_name:str):
         """
         Changes the model based.
 
@@ -742,7 +745,7 @@ class TrainingUtilities:
             Raised when there is an unrecognized `model_name`.
         """        
         if model_name == "mobilenetv2":
-            self.model = MobileNetV2(n_class=len(self.classes)).to(self.device)
+            self.model = MobileNetV2(num_classes=len(self.classes)).to(self.device)
             
         elif model_name == "xception":
             self.model =  CustomXception(num_of_classes=len(self.classes)).to(self.device)
@@ -767,7 +770,7 @@ class TrainingUtilities:
         
         weights = torch.load(model_weights_path)["model_state_dict"]
         self.set_model_parameters(model_name, mode=mode)
-        self._change_model(model_name)
+        self._set_model(model_name)
             
         self.model.load_state_dict(weights)
         self.model.eval()
@@ -973,7 +976,7 @@ class TrainingUtilities:
         losses = []
         accuracies = []
         
-        self._change_model(self.model_name)
+        self._set_model(self.model_name)
         
         if dry_run:
             for fold, (train_idx, test_idx) in enumerate(self.sign_dataset.folds):
@@ -1026,7 +1029,7 @@ class TrainingUtilities:
         """Does the actual training. Implements early stopping and some debugging.
         """        
         
-        early_stopping = EarlyStopping(filepath, fold, min_delta=self.min_delta, model_name=self.model_name)
+        early_stopping = EarlyStopping(model_path=filepath, model_name=self.model_name, fold=fold, min_delta=self.min_delta)
         train_total_loss = []
         train_total_acc = []
         val_total_loss = []
@@ -1072,7 +1075,7 @@ class TrainingUtilities:
                 
 class EarlyStopping():
     
-    def __init__(self, model_name:str, filepath:str, fold:int, min_delta=0):
+    def __init__(self, model_path:str, model_name:str, fold:int, min_delta=0):
         """
         Class for early stopping, because only plebs rely on set amounts of epochs.
         
@@ -1084,20 +1087,17 @@ class EarlyStopping():
         ----------
         `model_name` : `str`\n
             Model name.
-        `filepath` : `str`\n
-            String representation of the path to the saved_models directory.
         `fold` : `int`\n
             Number representing the current fold.
         `min_delta` : `int`, `optional`\n
             Smallest number the given metric needs to change in order to count as progress, by default 0.
         """        
         
-        self.filepath = filepath
         self.min_loss = float('inf')
         self.max_acc = -float('inf')
         self.min_delta = min_delta
         self.model_name = model_name 
-        self.path = str(os.path.join(self.filepath, self.model_name+'.pth'))
+        self.path = str(os.path.join(model_path, self.model_name+'.pth'))
         self.count = 0
         self.first_run = True
         self.best_model = None
