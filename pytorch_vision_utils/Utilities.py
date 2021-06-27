@@ -25,6 +25,23 @@ from tqdm.auto import tqdm
 
 from .CustomModels import CustomXception
 from .CustomModels import CustomMobileNetV2
+from .CustomModels import CustomVGG16
+from .CustomModels import CustomVGG19
+from .CustomModels import CustomVGG11
+from .CustomModels import CustomVGG13
+from .CustomModels import CustomInceptionV3
+from .CustomModels import CustomAlexNet
+from .CustomModels import CustomDenseNet121
+from .CustomModels import CustomDenseNet161
+from .CustomModels import CustomDenseNet169
+from .CustomModels import CustomDenseNet201
+from .CustomModels import CustomResNet18
+from .CustomModels import CustomResNet34
+from .CustomModels import CustomResNet50
+from .CustomModels import CustomResNet101
+from .CustomModels import CustomResNet152
+from .CustomModels import CustomSqueezeNet1_0
+from .CustomModels import CustomSqueezeNet1_1
   
   
 ### Helpful functions that can be used throughout ###
@@ -235,11 +252,6 @@ def random_sampling(dataset:dict, num_of_images=1000) -> list:
         balanced_data += dataset[i]
 
     return balanced_data
-
-
-
-
-
 
 
 
@@ -532,6 +544,9 @@ class DataVisualizationUtilities:
 
 
 class TrainingUtilities:
+
+    
+
     
     def __init__(self, data_dir:str, model_dir:str, model_name:str, parameters_path="parameters.json", mode="train"):
         """
@@ -589,7 +604,7 @@ class TrainingUtilities:
         self.sign_dataset = None
         self.loader = None
         self.mode = mode
-        # self.set_model_parameters(self.model_name, mode=self.mode)
+        self.avail_models = dict()
         
         
     def set_model_parameters(self,  model_name:str, mode="train"):
@@ -641,6 +656,34 @@ class TrainingUtilities:
         self.mean = settings["MEAN"]
         self.std = settings["STD"]
         self.mode = mode
+        
+        _model_names = ["alexnet", "densenet121", "densenet169", "densenet201", "densenet161", 
+                        "resnet18", "resnet34", "resnet50", "resnet101", "resnet151", 
+                        "inceptionv3", "squeezenet1_0", "squeezenet1_1", 
+                        "vgg11", "vgg13", "vgg16", "vgg19", "xception", "mobilenetv2"]
+        
+        _custom_models = [CustomAlexNet(num_of_classes=len(self.classes)), 
+                        CustomDenseNet121(num_of_classes=len(self.classes)),
+                        CustomDenseNet169(num_of_classes=len(self.classes)),
+                        CustomDenseNet201(num_of_classes=len(self.classes)),
+                        CustomDenseNet161(num_of_classes=len(self.classes)),
+                        CustomResNet18(num_of_classes=len(self.classes)),
+                        CustomResNet34(num_of_classes=len(self.classes)),
+                        CustomResNet50(num_of_classes=len(self.classes)),
+                        CustomResNet101(num_of_classes=len(self.classes)),
+                        CustomResNet152(num_of_classes=len(self.classes)),
+                        CustomInceptionV3(num_of_classes=len(self.classes)),
+                        CustomSqueezeNet1_0(num_of_classes=len(self.classes)),
+                        CustomSqueezeNet1_1(num_of_classes=len(self.classes)),
+                        CustomVGG11(num_of_classes=len(self.classes)),
+                        CustomVGG13(num_of_classes=len(self.classes)),
+                        CustomVGG16(num_of_classes=len(self.classes)),
+                        CustomVGG19(num_of_classes=len(self.classes)),
+                        CustomXception(num_of_classes=len(self.classes)),
+                        CustomMobileNetV2(num_of_classes=len(self.classes))]
+        
+        self.avail_models = dict(zip(_model_names, _custom_models))       
+        self.model = self.avail_models[self.model_name]
         
         self.train_transform = transforms.Compose([transforms.Resize(self.input_size),
                                                    transforms.ColorJitter(hue=self.hue, brightness=self.brightness,
@@ -711,10 +754,16 @@ class TrainingUtilities:
             Raised when there is an unrecognized `model_name`.
         """        
         if model_name == "mobilenetv2":
-            self.model = MobileNetV2(num_classes=len(self.classes)).to(self.device)
+            self.model = CustomMobileNetV2(num_classes=len(self.classes)).to(self.device)
             
         elif model_name == "xception":
             self.model =  CustomXception(num_of_classes=len(self.classes)).to(self.device)
+            
+        elif model_name == "alexnet":
+            self.model =  CustomAlexNet(num_of_classes=len(self.classes)).to(self.device)
+            
+        elif model_name == "densenet121":
+            self.model =  CustomDenseNet121(num_of_classes=len(self.classes)).to(self.device)
         
         else:
             raise ValueError("Unrecognized model name.")
