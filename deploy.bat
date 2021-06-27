@@ -1,4 +1,5 @@
-py -m pip install --upgrade twine
-py -m twine upload --repository testpypi dist/*
+py -m pip install --upgrade build
+py -m build
 
-::pip install dist/pytorch_vision_utils-0.2.1.tar.gz
+py -m pip install --upgrade twine
+py -m twine upload --repository testpypi dist/* --verbose

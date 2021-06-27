@@ -26,9 +26,11 @@ from pytorch_vision_utils.Utilities import DataVisualizationUtilities, TrainingU
 ##################### D E F A U L T S #####################
 
 parser = argparse.ArgumentParser(description="Picks which model we're going to train.")
-parser.add_argument("--model_name", type=str)
+parser.add_argument("-m", "--model_name", type=str)
+parser.add_argument("-p", "--parameters_path", type=str)
 args = parser.parse_args().__dict__
 MODEL_NAME = args["model_name"] # "xception"
+PARAMS = args["parameters_path"]
 
 
 # DIRECTORY NAMES
@@ -39,7 +41,7 @@ RESULTS_DIR = str(os.path.join(cwd, "model_results"))
 INC_DIR = str(os.path.join(cwd, "incorrect_images"))
 DATA_DIR = str(os.path.join(cwd, "data"))
 
-train_utils = TrainingUtilities(data_dir=DATA_DIR)
+train_utils = TrainingUtilities(data_dir=DATA_DIR, parameters_path=PARAMS, model_name=MODEL_NAME)
 dataviz_utils = DataVisualizationUtilities()
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
