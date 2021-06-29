@@ -38,26 +38,26 @@ def get_timestamp():
     return timestamp
 
 
-def reload_models(model, model_dir:str, folder_name:str, device="cuda:0", debug=False) -> list:
+def reload_models(model:nn.Module, model_dir:str, folder_name:str, device="cuda:0", debug=False) -> list:
     '''Reloads multiple models based on a directory passed through. Useful for quickly loading directories 
     
     Parameters
     ----------
-    `model` : TODO
-        TODO
-    `model_dir` : str
+    `model` : `nn.Module`\n
+        The model.
+    `model_dir` : `str`\n
         Path to the directory.
-    `folder_name` : str
+    `folder_name` : `str`\n
         Name of the folder.
-    `device` : str, optional
+    `device` : `str`, `optional`\n
         String representation of the GPU core to use or the CPU, by default "cuda:0".
-    `debug` : bool, default=True
+    `debug` : `bool`, `optional`\n
         Boolean indicating whether to print out debugging information or not.
 
     
     Returns
     -------
-    `models` : List[]
+    `models` : `list`\n
         List of all the saved models in evaluation mode.
     
     '''
@@ -87,8 +87,8 @@ def clear_dirs(dir:str):
     
     Parameters
     ----------
-    `dir` : str
-            Path to the directory
+    `dir` : `str`\n
+        Path to the directory
             
     '''
     
@@ -102,14 +102,14 @@ def clear_dirs(dir:str):
             os.remove(subdir+"/"+f)
             
 
-def create_fold_dirs(target_dir:str, dir_names:str):
+def create_fold_dirs(target_dir:str, dir_names:list):
     '''Creates fold directories.
     
     Parameters
     ----------
-    `target_dir` : str
+    `target_dir` : `str`\n
         String representation of the path to the directory.
-    `dir_names` : List[String]
+    `dir_names` : `list`\n
         List of the subdirectory names.
     
     '''
@@ -121,20 +121,20 @@ def create_fold_dirs(target_dir:str, dir_names:str):
             continue
     
         
-def create_fold_names(model_name:str, n_splits=5):
+def create_fold_names(model_name:str, n_splits=5) -> list:
     """
     List comprehension that creates the folder names.
 
     Parameters
     ----------
-    `model_name` : str
+    `model_name` : `str`\n
         Model name.
-    `n_splits` : int, optional
+    `n_splits` : `int`, `optional`\n
         Number of splits used for kfold cross validation, by default 5
 
     Returns
     -------
-    `list(str)`
+    `list`\n
         Returns a list of all the folder names.
     """    
     
@@ -147,14 +147,14 @@ def remove_outliers(data:list, constant=1.5):
 
     Parameters
     ----------
-    `data` : list
+    `data` : `list`\n
         List of the data points.
-    `constant` : float, optional
+    `constant` : `float`, `optional`\n
         Constant used for determining an outlier using the IQR, by default 1.5.
 
     Returns
     -------
-    ndarray
+    `ndarray`\n
         ndarray of data with outliers removed.
         
     """    
@@ -176,18 +176,18 @@ def time_to_predict(model:nn.Module, loader:DataLoader, constant=1.5, device="cu
 
     Parameters
     ----------
-    model : nn.Module
+    `model` : `nn.Module`\n
         The model.
-    loader : DataLoader
+    `loader` : `DataLoader`\n
         Dataloader with the images to predict on.
-    constant : float, optional
+    `constant` : `float`, `optional`\n
         Constant used for determining an outlier using the IQR, by default 1.5.
-    device : str, optional
+    `device` : `str`, `optional`\n
         String representation of the GPU core to use or the CPU, by default "cuda:0".
 
     Returns
     -------
-    list
+    `list`\n
         Prints some information about the deltas distribution and returns a list of the deltas
     """    
     
@@ -214,14 +214,14 @@ def random_sampling(dataset:dict, num_of_images=1000) -> list:
 
     Parameters
     ----------
-    `dataset` : dict
+    `dataset` : `dict`\n
         Dict representation of the dataset.
-    `num_of_images` : int, optional
+    `num_of_images` : `int`, `optional`\n
         Number of images for each class, will repopulate the other classes proportionally, by default 1000.
 
     Returns
     -------
-    list
+    `list`\n
         Returns a list 
     """    
 
@@ -252,7 +252,7 @@ class CustomDataset(Dataset):
         ----------
         `train_utils`\n
             Training Utilities instance.
-        `mode` : str, optional\n
+        `mode` : `str`, `optional`\n
             String representation of whether we're testing/validating or training, by default "train".
         """        
         
@@ -279,7 +279,7 @@ class CustomDataset(Dataset):
         elif self.mode == "test":
             ret = (self.test_transform(item), label) if self.test_transform else (item, label)
         
-        self.selected_item = (self.ids[index], ret)
+        self.selected_item = (self.ids[index], ret) # (filename, picture)
         return ret
 
         
@@ -289,12 +289,12 @@ class CustomDataset(Dataset):
 
         Parameters
         ----------
-        `new_mode` : str\n
+        `new_mode` : `str`\n
             String representation of the new mode.
             
         Raises
         ------
-        TypeError\n
+        `TypeError`\n
             If `new_mode` is not either 'train' or 'test'
         """   
         if new_mode != "train" and new_mode != "test":
@@ -331,14 +331,14 @@ class DataVisualizationUtilities:
         ----------
         `tensor`\n
             Tensor represention of image data.
-        `mean` : tuple or list, optional\n
+        `mean` : `tuple` or `list`, `optional`\n
             Mean of the data; used for de-normalization of the image, by default (0.485, 0.456, 0.406).
-        `std` : tuple or list, optional\n
+        `std` : `tuple` or `list`, `optional`\n
             Standard deviation of the data; used for de-normalaztion of the image, by default (0.229, 0.224, 0.225).
 
         Returns
         -------
-        np.ndarray\n
+        `ndarray`\n
             Returns ndarry de-normalizazed representation of an image.
         """        
         
@@ -371,27 +371,27 @@ class DataVisualizationUtilities:
             ax.set_title(train_utils.classes[labels[idx].numpy()])
                 
     
-    def display_metric_results(self, train_utils, fold:int, figsize=(7, 7), device="cuda", img_dir="./incorrect_images"):
+    def display_metric_results(self, fold:int, train_utils, figsize=(7, 7), device="cuda", img_dir="./incorrect_images"):
         """
         Displays classification report and confusion matrix.
 
         Parameters
         ----------
+        `fold` : `int`\n
+            Number representing the current fold during k-fold cross validation.
         `train_utils`\n
             TrainingUtilities instance.
-        `fold` : int\n
-            Number representing the current fold during k-fold cross validation.
-        `figsize` : tuple, optional\n
+        `figsize` : `tuple`, `optional`\n
             Tuple representing the dimensions of the figure in inches, by default (7, 7).
-        `device` : str, optional\n
+        `device` : `str`, `optional`\n
             String representation of the GPU core to use or the CPU, by default "cuda:0".
-        `img_dir` : str, optional\n
+        `img_dir` : `str`, `optional`\n
             String representation of the path to the incorrect images directory, by default "./incorrect_images".
             
         """        
         
         with torch.no_grad():
-            y_pred, y_true = train_utils.get_predictions(img_dir=img_dir)
+            y_pred, y_true = train_utils.get_predictions(fold, img_dir=img_dir)
             
         y_true = torch.tensor(y_true).to(device, dtype=torch.long)
         xticks = yticks = train_utils.classes
@@ -416,17 +416,17 @@ class DataVisualizationUtilities:
 
         Parameters
         ----------
-        `loss` : float\n
+        `loss` : `float`\n
             Training loss.
-        `acc` : float\n
+        `acc` : `float`\n
             Training accuracy.
-        `val_loss` : float\n
+        `val_loss` : `float`\n
             Validation loss.
-        `val_acc` : float\n
+        `val_acc` : `float`\n
             Validation accuracy.
-        `title` : str\n
+        `title` : `str`\n
             Title of the graph.
-        `figsize` : tuple, optional\n
+        `figsize` : `tuple`, `optional`\n
             Tuple representing the dimensions of the figure in inches, by default (7, 7).
             
         """        
@@ -460,25 +460,25 @@ class DataVisualizationUtilities:
 
         Parameters
         ----------
-        `pred_times1` : list or ndarray\n
+        `pred_times1` : `list` or `ndarray`\n
             Collection of predicition times for the first model for comparison.
-        `pred_times2` : list or ndarray\n
+        `pred_times2` : `list` or `ndarray`\n
             Collection of predicition times for the second model for comparison.
-        `model_name1` : str\n
+        `model_name1` : `str`\n
             First model name.
-        `model_name2` : str\n
+        `model_name2` : `str`\n
             Second model name.
-        `figsize` : tuple, optional\n
+        `figsize` : `tuple`, `optional`\n
             Tuple representing the dimensions of the figure in inches, by default (7, 7).
-        `shade` : bool, optional\n
+        `shade` : `bool`, `optional`\n
             Boolean representing whether to shade in the figure or not, by default True.
-        `legend` : bool, optional\n
+        `legend` : `bool`, `optional`\n
             Boolean representing whether to show the legend or not, by default True.
-        `bw_adjust` : int, optional\n
+        `bw_adjust` : `int`, `optional`\n
             Number representing the width of the line in pixels, by default 5.
-        `color1` : str, tuple, list\n
+        `color1` : `str`, `tuple`, `list`\n
             Structured representation of the color for model 1, by default "blue".
-        `color2` : str, optional\n
+        `color2` : `str`, `optional`\n
             Structured representation of the color for model 2, by default "purple".
         """        
         
@@ -494,20 +494,22 @@ class DataVisualizationUtilities:
         plt.show()
 
         
-    def display_roc_curve(self, train_utils, figsize=(7, 7)):
+    def display_roc_curve(self, fold:int, train_utils, figsize=(7, 7)):
         """
         Displays ROC curve.
 
         Parameters
         ----------
-        train_utils : TrainingUtilities\n
+        `fold` : int\n
+            Number representing the current fold during k-fold cross validation.
+        `train_utils` : `TrainingUtilities`\n
             TrainingUtilities instance.
-        figsize : tuple, optional\n
+        `figsize` : `tuple`, `optional`\n
             Tuple representing the dimensions of the figure in inches, by default (7, 7).
         """        
         
         with torch.no_grad():
-            y_pred, y_true = train_utils.get_predictions(img_dir="")
+            y_pred, y_true = train_utils.get_predictions(fold, img_dir="")
             y_pred, y_true = y_pred.argmax(dim=1).cpu().numpy(), torch.tensor(y_true).cpu().numpy()
         
         fpr, tpr, thresholds = roc_curve(y_pred, y_true)
@@ -581,7 +583,7 @@ class TrainingUtilities:
         self.std = []
         self.train_transform = None
         self.test_transform = None
-        self.sign_dataset = None
+        self.dataset = None
         self.loader = None
         self.mode = mode
         self.avail_models = dict()
@@ -638,13 +640,8 @@ class TrainingUtilities:
         self.mode = mode
         
         
-        self.avail_models = get_avail_models()   
-        for i, models in enumerate(self.avail_models[0]):
-            if self.model_name in models:
-                self.model = self.avail_models[1][i](num_classes=len(self.classes), model_name=self.model_name, debug=debug).model.to(device=self.device)
-                break
+        self._set_model(self.model_name, debug)
             
-        
         self.train_transform = transforms.Compose([transforms.Resize(self.input_size),
                                                    transforms.ColorJitter(hue=self.hue, brightness=self.brightness,
                                                                           saturation=self.saturation, contrast=self.contrast),
@@ -659,8 +656,8 @@ class TrainingUtilities:
                                                   transforms.ToTensor(),
                                                   transforms.Normalize(mean=self.mean, std=self.std)])
                                         
-        self.sign_dataset = CustomDataset(self, mode=self.mode)
-        self.loader = self.create_loader(self.sign_dataset, batch_size=self.batch_size, shuffle=True)
+        self.dataset = CustomDataset(self, mode=self.mode)
+        self.loader = self.create_loader(self.dataset, batch_size=self.batch_size, shuffle=True)
     
         
     def set_test_transform(self, new_transform:transforms.Compose):
@@ -701,7 +698,7 @@ class TrainingUtilities:
 
     def _set_model(self, model_name:str, debug=False):
         """
-        Changes the model based.
+        Changes the model based on a given name.
 
         Parameters
         ----------
@@ -710,12 +707,15 @@ class TrainingUtilities:
             
         Raises
         ------
-        `ValueError`
+        `ValueError`\n
             Raised when there is an unrecognized `model_name`.
         """        
-        self.model = self.avail_models[model_name]
-        if debug:
-            print(type(self.model), self.model)
+        self.avail_models = get_avail_models()   
+        for i, models in enumerate(self.avail_models[0]):
+            if self.model_name in models:
+                return self.avail_models[1][i](num_classes=len(self.classes), model_name=self.model_name, debug=debug).model.to(device=self.device)
+
+        raise ValueError("Unrecognized `model_name` param.")
 
 
     def load_weights(self, model_name:str, model_weights_path:str, mode="test", debug=False):
@@ -868,12 +868,14 @@ class TrainingUtilities:
         
     
     @torch.no_grad() # https://deeplizard.com/learn/video/0LhiS6yu2qQ
-    def get_predictions(self, img_dir, device="cuda:0") -> tuple:
+    def get_predictions(self, fold, img_dir, device="cuda:0") -> tuple:
         """
         Gets all of the predictions. Useful for determining model performance.
 
         Parameters
         ----------
+        `fold` : int\n
+            Number representing the current fold during k-fold cross validation.
         `img_dir` : `str`\n
             String representation of the path to the incorrect image directory.
         `device` : `str`, `optional`\n
@@ -901,10 +903,10 @@ class TrainingUtilities:
             for idx, is_correct in enumerate(corrects.cpu().numpy()):
                 if img_dir and not is_correct:
                     tensor_img = transforms.ToTensor()(DataVisualizationUtilities()._im_convert(tensor=images[idx].cpu(), mean=self.mean, std=self.std))
-                    save_image(tensor_img, img_dir+f"/{self.loader.dataset.selected_item[idx][0]}.png") # should contain the image id (hopefully :)
+                    # save_image(tensor_img, img_dir+f"/{self.loader.dataset.selected_item[idx][0]}.png") # should contain the image id (hopefully :)
                     
-                    # hash_ = hashlib.sha256(get_timestamp().encode('utf-8')).hexdigest()[:5]
-                    # save_image(tensor_img, img_dir+f"/{self.model_name}_fold_{fold}/{hash_}_{labels[idx]}.png")
+                    hash_ = hashlib.sha256(get_timestamp().encode('utf-8')).hexdigest()[:5]
+                    save_image(tensor_img, img_dir+f"/{self.model_name}_fold_{fold}/{hash_}_{labels[idx]}.png")
                                      
         return y_pred, y_true
     
@@ -940,13 +942,12 @@ class TrainingUtilities:
         accuracies = []
         
         if dry_run:
-            for fold, (train_idx, test_idx) in enumerate(self.sign_dataset.folds):
+            for fold, (train_idx, test_idx) in enumerate(self.dataset.folds):
                 print('\nFold ', fold+1)
                     
-                
-                train_idx, test_idx = self.sign_dataset.folds[fold]
-                train_dataset = torch.utils.data.Subset(self.sign_dataset, train_idx)
-                test_dataset = torch.utils.data.Subset(self.sign_dataset, test_idx)
+                train_idx, test_idx = self.dataset.folds[fold]
+                train_dataset = torch.utils.data.Subset(self.dataset, train_idx)
+                test_dataset = torch.utils.data.Subset(self.dataset, test_idx)
                 
                 train_dataset.transform = self.train_transform
                 test_dataset.transform = self.test_transform
@@ -968,9 +969,9 @@ class TrainingUtilities:
         else:
             
             fold = 0
-            train_idx, test_idx = self.sign_dataset.folds[fold]
-            train_dataset = torch.utils.data.Subset(self.sign_dataset, train_idx)
-            test_dataset = torch.utils.data.Subset(self.sign_dataset, test_idx)
+            train_idx, test_idx = self.dataset.folds[fold]
+            train_dataset = torch.utils.data.Subset(self.dataset, train_idx)
+            test_dataset = torch.utils.data.Subset(self.dataset, test_idx)
             criterion = nn.CrossEntropyLoss()
             optimizer = torch.optim.Adam(self.model.parameters(), lr=self.eta)
             lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=self.factor, patience=self.lr_patience, verbose=True)
@@ -1025,7 +1026,7 @@ class TrainingUtilities:
                     DataVisualizationUtilities().display_results(train_total_loss, train_total_acc, val_total_loss, val_total_acc, 
                                                        title=early_stopping.model_name)
                     
-                    DataVisualizationUtilities().display_metric_results(train_utils=self, fold=fold, img_dir=inc_path)
+                    DataVisualizationUtilities().display_metric_results(fold=fold, train_utils=self, img_dir=inc_path)
                     
                 break
             

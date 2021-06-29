@@ -1,8 +1,10 @@
 """Contains all of the available models for customization. Wrapper for another module I've been messing with.
 """
 
-from pretrainedmodels.models.xception import Xception
-from pretrainedmodels.models.mobilenetv2 import MobileNetV2
+from torch import nn
+
+from pretrainedmodels.models.xception import xception
+from pretrainedmodels.models.mobilenetv2 import mobilenetv2
 
 from torchvision.models import alexnet
 from torchvision.models import densenet121, densenet161, densenet169, densenet201
@@ -68,7 +70,7 @@ class VGGWrapper():
         """  
         
         self.num_classes = num_classes
-        self.model = _vgg_dict[model_name](num_classes=self.num_classes)
+        self.model = _vgg_dict[model_name](pretrained=True, num_classes=self.num_classes)
         
         if debug:
             print(self.model)
@@ -96,7 +98,7 @@ class SqueezeNetWrapper():
         """  
         
         self.num_classes = num_classes
-        self.model = _squeeze_dict[model_name](num_classes=self.num_classes)
+        self.model = _squeeze_dict[model_name](pretrained=True, num_classes=self.num_classes)
         
         if debug:
             print(self.model)
@@ -105,7 +107,7 @@ class SqueezeNetWrapper():
 
 class InceptionV3Wrapper():
     
-    def __init__(self, num_classes=2, debug=False):
+    def __init__(self, model_name, num_classes=2, debug=False):
         """
         Wrapper around the inceptionv3 function to change the classifier from 1000 to 2 and adds a debug functionality.
 
@@ -146,7 +148,7 @@ class ResNetWrapper():
         """  
         
         self.num_classes = num_classes
-        self.model = _resnet_dict[model_name](num_classes=self.num_classes)
+        self.model = _resnet_dict[model_name](pretrained=True, num_classes=self.num_classes)
         
         if debug:
             print(self.model)
@@ -173,7 +175,7 @@ class DenseNetWrapper():
         """    
         
         self.num_classes = num_classes
-        self.model = _densenet_dict[model_name](num_classes=self.num_classes)
+        self.model = _densenet_dict[model_name](pretrained=True, num_classes=self.num_classes)
         
         if debug:
             print(self.model)
@@ -197,14 +199,14 @@ class AlexNetWrapper():
         """  
        
         self.num_classes = num_classes
-        self.model = alexnet(num_classes=self.num_classes)
+        self.model = alexnet(pretrained=True, num_classes=self.num_classes)
         
         if debug:
             print(self.model)
       
       
    
-class XceptionWrapper(Xception):
+class XceptionWrapper():
         
     def __init__(self, model_name, num_classes=2, debug=False):
         """
@@ -219,15 +221,17 @@ class XceptionWrapper(Xception):
         `debug` : bool, optional\n
             Boolean representing whether debug mode is on or off, by default False.
         """        
-        super(Xception, self).__init__()
+        
         self.num_classes = num_classes
-        self.model = Xception(num_classes=num_classes)      
+        self.model = xception()  
+        dim_feats = self.model.last_linear.in_features
+        self.model.last_linear = nn.Linear(dim_feats, self.num_classes)    
         
         if debug:
             print(self.model)
 
 
-class MobileNetV2Wrapper(MobileNetV2):
+class MobileNetV2Wrapper():
         
     def __init__(self, model_name, num_classes=2, debug=False):
         """
@@ -242,9 +246,11 @@ class MobileNetV2Wrapper(MobileNetV2):
         `debug` : bool, optional\n
             Boolean representing whether debug mode is on or off, by default False.
         """  
-              
-        super(MobileNetV2, self).__init__()
-        self.model = MobileNetV2(num_classes=num_classes) 
+           
+        self.num_classes = num_classes   
+        self.model = mobilenetv2() 
+        dim_feats = self.model.classifier.in_features
+        self.model.classifier = nn.Linear(dim_feats, self.num_classes)
         
         if debug:
             print(self.model)
