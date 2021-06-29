@@ -34,9 +34,6 @@ jobs:
         cd pretrained-models.pytorch
         python setup.py install
         cd ..
-        git checkout master
-        git fetch
-        git merge origin/master
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
