@@ -1,10 +1,9 @@
+
 ::conda activate torch_base
-
-pip uninstall pretrained-models.pytorch
-
-Remove-Item -LiteralPath "./pretrained-models.pytorch" -Force -Recurse
+pip uninstall pretrainedmodels -y
 git clone https://github.com/nclgbd/pretrained-models.pytorch.git
 cd pretrained-models.pytorch
+git pull origin master
 python setup.py install
 pip install -r requirements.txt
 cd ..

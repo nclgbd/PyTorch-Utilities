@@ -5,18 +5,18 @@ name: Python package
 
 on:
   push:
-    branches: [ $develop ]
+    branches: [ develop ]
   pull_request:
-    branches: [ $master ]
+    branches: [ master ]
 
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: '3.x'
+        python-version: [3.7]
 
     steps:
     - uses: actions/checkout@v2
@@ -28,15 +28,12 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install -r requirements.txt
         pip uninstall pretrained-models.pytorch
         git clone https://github.com/nclgbd/pretrained-models.pytorch.git
         cd pretrained-models.pytorch
         python setup.py install
         cd ..
-        git checkout master
-        git fetch
-        git merge origin/master
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
