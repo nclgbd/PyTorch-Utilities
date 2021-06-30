@@ -23,9 +23,9 @@ from torchvision.utils import save_image
 from torch.utils.data import DataLoader, Dataset
 from tqdm.auto import tqdm
 
-from .CustomModels import AlexNetWrapper, DenseNetWrapper, InceptionV3Wrapper, MobileNetV2Wrapper
-from .CustomModels import ResNetWrapper, SqueezeNetWrapper, VGGWrapper, XceptionWrapper
-from .CustomModels import get_avail_models
+# from .CustomModels import AlexNetWrapper, DenseNetWrapper, InceptionV3Wrapper, MobileNetV2Wrapper
+# from .CustomModels import ResNetWrapper, SqueezeNetWrapper, VGGWrapper, XceptionWrapper
+from .CustomModels import MobileNetV2Wrapper, XceptionWrapper, get_avail_models
   
 ### Helpful functions that can be used throughout ###
 def get_timestamp():
@@ -640,7 +640,7 @@ class TrainingUtilities:
         self.mode = mode
         
         
-        self._set_model(self.model_name, debug)
+        self.model = self._set_model(self.model_name, debug).to(self.device)
             
         self.train_transform = transforms.Compose([transforms.Resize(self.input_size),
                                                    transforms.ColorJitter(hue=self.hue, brightness=self.brightness,
@@ -710,10 +710,14 @@ class TrainingUtilities:
         `ValueError`\n
             Raised when there is an unrecognized `model_name`.
         """        
-        self.avail_models = get_avail_models()   
-        for i, models in enumerate(self.avail_models[0]):
-            if self.model_name in models:
-                return self.avail_models[1][i](num_classes=len(self.classes), model_name=self.model_name, debug=debug).model.to(device=self.device)
+        if model_name == "xception":
+            return XceptionWrapper(model_name=model_name, debug=debug)
+        elif model_name == "mobilenetv2":
+            return MobileNetV2Wrapper(model_name=model_name, debug=debug)
+        # self.avail_models = get_avail_models()   
+        # for i, models in enumerate(self.avail_models[0]):
+        #     if self.model_name in models:
+        #         return self.avail_models[1][i](num_classes=len(self.classes), model_name=self.model_name, debug=debug).to(device=self.device)
 
         raise ValueError("Unrecognized `model_name` param.")
 

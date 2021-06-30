@@ -7,25 +7,30 @@ import argparse
 
 from pytorch_vision_utils.Utilities import clear_dirs, random_sampling
 
-curPATH = os.getcwd()
-with open("config.json", "r") as f:
-    config = json.load(f)
-    
-PATHS = config["PATHS"]
 
 parser = argparse.ArgumentParser(description="Adds more customization for the dataset.")
 parser.add_argument("--num_of_images", "-n", type=int, required=False, default=5000)
 parser.add_argument("--rebalance", "-r", type=str, required=False, default="True")
 parser.add_argument("--debug", "-d", type=str, required=False, default="True")
 parser.add_argument("--train", "-t", type=str, required=False, default="True")
+parser.add_argument("--parameters_path", "-c", type=str, required=False, default="config.json")
 args = parser.parse_args().__dict__
+num_of_images = args["num_of_images"]
 rebalance = args["rebalance"] == "True"
 debug = args["debug"] == "True"
 train = args["train"] == "True"
+parameters_path = args["parameters_path"]
+
+curPATH = os.getcwd()
+with open(parameters_path, "r") as f:
+    classes = json.load(f)["CLASSES"]
+    PATHS = [classes[c].lower()+'/' for c in classes]
+    
+
 
 PRE_PATH = '../unformatted_data/' if train else '../unformatted_test_data/'
 POST_PATH = '../data/' if train else '../test_data/'
-print("num_of_images:", args["num_of_images"], "rebalance:", rebalance, "debug:", debug, "train mode:", train)
+print("num_of_images:", num_of_images, "rebalance:", rebalance, "debug:",  debug, "train mode:", train, "parameters_path": parameters_path, "classes:", classes)
 
 for PATH in PATHS:
     try:
