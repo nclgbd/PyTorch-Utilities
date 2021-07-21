@@ -1,4 +1,4 @@
-## Personal PyTorch Training and Data Visualization Package
+# PyTorch Vision Training and Data Visualization Package
 [![PyPI version](https://badge.fury.io/py/pytorch-vision-utils.svg)](https://badge.fury.io/py/pytorch-vision-utils)
 [![pypi](https://github.com/nclgbd/PyTorch-Utilities/actions/workflows/python-publish.yml/badge.svg)](https://github.com/nclgbd/PyTorch-Utilities/actions/workflows/python-publish.yml)
 
