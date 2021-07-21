@@ -711,9 +711,9 @@ class TrainingUtilities:
             Raised when there is an unrecognized `model_name`.
         """        
         if model_name == "xception":
-            return XceptionWrapper(model_name=model_name, debug=debug)
+            return XceptionWrapper(model_name=model_name, num_classes=len(self.classes), debug=debug)
         elif model_name == "mobilenetv2":
-            return MobileNetV2Wrapper(model_name=model_name, debug=debug)
+            return MobileNetV2Wrapper(model_name=model_name, num_classes=len(self.classes), debug=debug)
         # self.avail_models = get_avail_models()   
         # for i, models in enumerate(self.avail_models[0]):
         #     if self.model_name in models:
