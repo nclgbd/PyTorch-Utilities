@@ -964,6 +964,7 @@ class TrainingUtilities:
                 
                 losses.append(loss)
                 accuracies.append(acc)
+                self._set_model(model_name=self.model_name, debug=debug) # creates a new instance of the model
                 
             avg_loss = mean(losses)
             avg_acc = mean(accuracies)
