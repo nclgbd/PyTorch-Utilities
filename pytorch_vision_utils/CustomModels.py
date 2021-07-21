@@ -223,41 +223,10 @@ class XceptionWrapper(Xception):
         if debug:
             print(self)
             
-        
-    # def __init__(self, num_classes=1000):
-    #     """
-    #     Wrapper around the xception class to change the classifier from 1000 to 2 and adds a debug functionality.
-
-    #     Attributes
-    #     ----------
-    #     `model_name`: `str`\n
-    #         String representation of the model name.
-    #     `num_classes` : `int`, `optional`\n
-    #         The number of classes being predicted on, by default 2.
-    #     `debug` : `bool`, `optional`\n
-    #         Boolean representing whether debug mode is on or off, by default False.
-    #     """      
-        
-    #     # self.num_classes = num_classes
-    #     # self.model = xception()  
-    #     # dim_feats = self.model.last_linear.in_features
-    #     # self.model.last_linear = nn.Linear(dim_feats, self.num_classes)    
-        
-    #     # if debug:
-    #     #     print(self.model)  
-        
-    #     super(Xception, self).__init__()
-
-        
-        
-    #     def forward(self, x):
-    #         x = self.features(input)
-    #         x = self.logits(x)
-    #         return x
 
 
 class MobileNetV2Wrapper(MobileNetV2):
-    def __init__(self, model_name, n_class=2, debug=False, input_size=224, width_mult=1.):
+    def __init__(self, model_name, num_classes=2, debug=False, input_size=224, width_mult=1.):
      #     """
     #     Wrapper around the mobilenetv2 class to change the classifier from 1000 to 2 and adds a debug functionality.
 
@@ -270,48 +239,12 @@ class MobileNetV2Wrapper(MobileNetV2):
     #     `debug` : `bool`, `optional`\n
     #         Boolean representing whether debug mode is on or off, by default False.
     #     """  
-        MobileNetV2.__init__(self, num_classes=n_class)
+        MobileNetV2.__init__(self, num_classes=num_classes)
         
         self.model_name = model_name
-        self.num_classes = n_class
+        self.num_classes = num_classes
         if debug:
             print(self)
             
-        
-    # def __init__(self, num_classes=2):
-    #     """
-    #     Wrapper around the mobilenetv2 class to change the classifier from 1000 to 2 and adds a debug functionality.
 
-    #     Attributes
-    #     ----------
-    #     `model_name`: `str`\n
-    #         String representation of the model name.
-    #     `num_classes` : `int`, `optional`\n
-    #         The number of classes being predicted on, by default 2.
-    #     `debug` : `bool`, `optional`\n
-    #         Boolean representing whether debug mode is on or off, by default False.
-    #     """  
-           
-    #     # self.num_classes = num_classes   
-    #     # self.model = mobilenetv2() 
-    #     # dim_feats = self.model.classifier.in_features
-    #     # # self.model.classifier = nn.Linear(dim_feats, self.num_classes)
-        
-    #     # if debug:
-    #     #     print(self.model)
-        
-    #     super(MobileNetV2, self).__init__()
-    #     self.model_name = model_name
-    #     self.num_classes = num_classes
-        # if debug:
-        #     print(self)
-
-        
-        # def forward(self, x):
-        #     super()
-        #     x = self.features(x)
-        #     x = x.mean(3).mean(2)
-        #     x = self.classifier(x)
-        #     return x
-            
-        
+  
