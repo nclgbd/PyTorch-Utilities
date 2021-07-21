@@ -6,7 +6,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="pytorch_vision_utils",
-    version='0.3.0',
+    version='0.3.1',
     author="Nicole Gu",
     author_email="nicoleguob@gmail.com",
     description="PyTorch training and data visualization utilities",
