@@ -3,8 +3,8 @@
 
 from torch import nn
 
-from pretrainedmodels.models.xception import Xception, xception
-from pretrainedmodels.models.mobilenetv2 import MobileNetV2, mobilenetv2
+from pytorch_vision_utils.avail_custom_models.xception import Xception, xception
+from pytorch_vision_utils.avail_custom_models.mobilenetv2 import MobileNetV2, mobilenetv2
 
 from torchvision.models import alexnet
 from torchvision.models import densenet121, densenet161, densenet169, densenet201
