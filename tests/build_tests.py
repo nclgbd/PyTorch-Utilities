@@ -28,3 +28,5 @@ def build_test():
     DataVisualizationUtilities()
     
     return 0
+
+build_test()
