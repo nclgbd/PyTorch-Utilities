@@ -9,7 +9,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build-and-test-env:
+  build-env:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -17,11 +17,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: iterative/setup-dvc@v1
-
-    - name: Set up Python 3.6
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.6
 
     - name: Conda environment creation and activation
       uses: conda-incubator/setup-miniconda@v2
@@ -33,13 +28,19 @@ jobs:
         auto-activate-base: false
         show-channel-urls: true
 
-    - name: Install dependencies
+    - name: Install pip dependencies
       run: |
         echo $CONDA/bin >> $GITHUB_PATH
         conda activate torch_base
         python -m pip install --upgrade pip
         pip install pytest
 
+  test-env:
+    needs: build-env 
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}  
     - name: Run build and test scripts
       run: |
         echo $CONDA/bin >> $GITHUB_PATH
