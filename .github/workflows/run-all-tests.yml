@@ -1,7 +1,7 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Test Build Methods
+name: Run Tests
 
 on:
   push:
@@ -38,6 +38,7 @@ jobs:
         echo $CONDA/bin >> $GITHUB_PATH
         conda activate torch_base
         python -m pip install --upgrade pip
+        pip install pytest
         
         git clone https://github.com/nclgbd/pretrained-models.pytorch.git
         cd pretrained-models.pytorch
@@ -51,5 +52,5 @@ jobs:
         echo $CONDA/bin >> $GITHUB_PATH
         conda activate torch_base
         ls -la
-        python tests/run-tests.py
+        pytest --ignore=pretrained-models.pytorch
 
