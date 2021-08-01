@@ -54,7 +54,6 @@ dependencies:
   - sqlite=3.33.0
   - threadpoolctl=2.1.0
   - tk=8.6.10
-  - torchaudio=0.7.0
   - torchvision=0.8.1
   - tornado=6.0.4
   - traitlets=4.3.3

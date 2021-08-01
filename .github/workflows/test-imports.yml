@@ -51,7 +51,5 @@ jobs:
         echo $CONDA/bin >> $GITHUB_PATH
         conda activate torch_base
         ls -la
-        cd pytorch_vision_utils/pytorch_vision_utils/
-        ls -la
         python tests/run-tests.py
 
