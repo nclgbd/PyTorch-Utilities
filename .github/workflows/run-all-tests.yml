@@ -40,7 +40,8 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        shell: bash -l {0}  
+        shell: bash -l {0} 
+    steps: 
     - name: Run build and test scripts
       run: |
         echo $CONDA/bin >> $GITHUB_PATH
