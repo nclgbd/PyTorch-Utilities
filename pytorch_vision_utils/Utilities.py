@@ -6,7 +6,6 @@ import json
 import os
 import hashlib
 import random
-import pretrainedmodels
 
 from datetime import datetime
 from PIL import Image
