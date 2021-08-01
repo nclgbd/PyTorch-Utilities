@@ -34,11 +34,10 @@ jobs:
         conda activate torch_base
         python -m pip install --upgrade pip
         pip install pytest
-        
+
     - name: Run build and test scripts
       run: |
         echo $CONDA/bin >> $GITHUB_PATH
         conda activate torch_base
         ls -la
         pytest
-
