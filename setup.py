@@ -4,6 +4,7 @@ from setuptools import setup, find_packages
 with open("README.md", "r") as f:
     long_description = f.read()
 
+print(find_packages())
 setup(
     name="pytorch_vision_utils",
     version='0.3.2',
@@ -13,7 +14,6 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/nclgbd/PyTorch-Utilities",
-    install_requires=['pretrainedmodels'],
     packages=find_packages(),
     scripts=["pytorch_vision_utils/train.py", "pytorch_vision_utils/preprocessing.py"],
     classifiers=[

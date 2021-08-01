@@ -1,12 +1,5 @@
 
-pip uninstall pretrainedmodels -y
-git clone https://github.com/nclgbd/pretrained-models.pytorch.git
-cd pretrained-models.pytorch
-git pull origin master
-python setup.py install
-pip install -r requirements.txt
-cd ..
-
+::conda activate torch_base
 pip uninstall pytorch_vision_utils -y
 bumpversion --dry-run --allow-dirty patch
 py -m build

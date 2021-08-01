@@ -22,6 +22,8 @@ This package is an abstraction of some common things functions I use when using 
 
 Hopefully in the future I can have colleagues also find use with this, or extend off of it.
 
+If you'd like to see what I plan on implementing and where things are currently, check [here](https://github.com/nclgbd/PyTorch-Utilities/projects/1).
+
 
 ## Necessary Files
 
