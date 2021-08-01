@@ -11,3 +11,6 @@ pytorch_vision_utils.egg-info/PKG-INFO
 pytorch_vision_utils.egg-info/SOURCES.txt
 pytorch_vision_utils.egg-info/dependency_links.txt
 pytorch_vision_utils.egg-info/top_level.txt
+pytorch_vision_utils/custom_models/__init__.py
+pytorch_vision_utils/custom_models/mobilenetv2.py
+pytorch_vision_utils/custom_models/xception.py

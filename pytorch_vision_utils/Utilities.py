@@ -24,21 +24,21 @@ from tqdm.auto import tqdm
 
 # from .CustomModels import AlexNetWrapper, DenseNetWrapper, InceptionV3Wrapper, MobileNetV2Wrapper
 # from .CustomModels import ResNetWrapper, SqueezeNetWrapper, VGGWrapper, XceptionWrapper
+import CustomModels
 from .CustomModels import MobileNetV2Wrapper, XceptionWrapper, get_avail_models
+  
   
 ### Helpful functions that can be used throughout ###
 def get_timestamp():
     '''Creates a timestamp, typically useful for generating unique file names for models and images.
-    
     '''
-    
     now = datetime.now()
     timestamp = now.strftime("%d.%m.%Y %H:%M:%S,%f")
     return timestamp
 
 
 
-def build(params="parameters.json"): 
+def build(params="parameters.json"):
     """
     Creates all of the necessary directories.
 

@@ -3,8 +3,9 @@
 
 from torch import nn
 
-from avail_custom_models.xception import Xception, xception
-from avail_custom_models.mobilenetv2 import MobileNetV2, mobilenetv2
+import custom_models
+from custom_models.xception import Xception
+from custom_models.mobilenetv2 import MobileNetV2
 
 from torchvision.models import alexnet
 from torchvision.models import densenet121, densenet161, densenet169, densenet201
