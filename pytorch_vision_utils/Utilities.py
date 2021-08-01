@@ -24,7 +24,6 @@ from tqdm.auto import tqdm
 
 # from .CustomModels import AlexNetWrapper, DenseNetWrapper, InceptionV3Wrapper, MobileNetV2Wrapper
 # from .CustomModels import ResNetWrapper, SqueezeNetWrapper, VGGWrapper, XceptionWrapper
-import CustomModels
 from .CustomModels import MobileNetV2Wrapper, XceptionWrapper, get_avail_models
   
   

@@ -1,9 +1,8 @@
-import os
-
-os.system("conda activate torch_base")
+# import os
+# os.system("conda activate torch_base")
 
 from . import custom_models
-from .custom_models import mobilenetv2, MobileNetV2
-from .custom_models import xception, Xception
+from . import CustomModels
+from . import Utilities
 
 version='0.3.2'

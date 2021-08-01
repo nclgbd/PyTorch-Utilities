@@ -4,7 +4,6 @@ import torch
 
 def build_test():
     print("Importing custom packages...")
-    import pytorch_vision_utils
     from pytorch_vision_utils.Utilities import DataVisualizationUtilities, TrainingUtilities
     from pytorch_vision_utils.Utilities import clear_dirs, time_to_predict
 
@@ -28,5 +27,3 @@ def build_test():
     DataVisualizationUtilities()
     
     return 0
-
-build_test()
