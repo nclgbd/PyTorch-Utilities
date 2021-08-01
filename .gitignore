@@ -1,4 +1,4 @@
 .vscode/
 __pycache__/
-pretrained-models.pytorch/
+tests/__pycache__
 config/

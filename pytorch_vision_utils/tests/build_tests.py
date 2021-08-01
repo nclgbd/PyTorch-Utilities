@@ -2,32 +2,12 @@ import os
 import sys
 import torch
 
-
-def import_test():
-    print("Importing custom packages...")
-    from pytorch_vision_utils import pytorch_vision_utils
-    from pytorch_vision_utils.Utilities import DataVisualizationUtilities, TrainingUtilities
-    from pytorch_vision_utils.Utilities import clear_dirs, time_to_predict
-
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print("Using: ", device)
-    
-    return 0
-
-
-
-print("Importing custom packages...")
-from pytorch_vision_utils import pytorch_vision_utils
+from pytorch_vision_utils import Utilities
 from pytorch_vision_utils.Utilities import DataVisualizationUtilities, TrainingUtilities
 from pytorch_vision_utils.Utilities import clear_dirs, time_to_predict
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print("Using: ", device)
+
 def build_test():
-    
-    if import_test():
-        return -1
-    
     # Default directory names
     print("Creating folders...")
     cwd = os.getcwd()
@@ -45,3 +25,5 @@ def build_test():
     DataVisualizationUtilities()
     
     return 0
+
+
