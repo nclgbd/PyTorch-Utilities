@@ -2,8 +2,8 @@ import os
 import sys
 import torch
 
-from pytorch_vision_utils.Utilities import build
-from pytorch_vision_utils.Utilities import clear_dirs, time_to_predict, DataVisualizationUtilities, TrainingUtilities
+from pytorch_vision_utils.Utilities import DataVisualizationUtilities, TrainingUtilities
+from pytorch_vision_utils.Utilities import build, clear_dirs, time_to_predict
 from pretrainedmodels.models.xception import Xception
 from pretrainedmodels.models.mobilenetv2 import MobileNetV2
 
@@ -21,5 +21,7 @@ INC_DIR = str(os.path.join(cwd, 'incorrect_images'))
 
 TrainingUtilities(data_dir=TEST_DIR, model_name="mobilenetv2")
 TrainingUtilities(data_dir=TEST_DIR, model_name="xception")
+
+DataVisualizationUtilities()
 
 sys.exit(0)

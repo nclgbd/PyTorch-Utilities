@@ -1,4 +1,4 @@
-import os
+from subprocess import call
 
 
 print("Running all tests...\n")
@@ -6,5 +6,5 @@ print("Running all tests...\n")
 test_names = ["build-test"]
 for name in test_names:
     print("Running:", name)
-    os.system('python tests/{}.py'.format(name))
+    assert call('python tests/{}.py'.format(name).split()) == 0
     
