@@ -77,7 +77,6 @@ dependencies:
     - munch==2.5.1.dev12
     - pandas==1.1.4
     - pyparsing==2.4.7
-    - pytorch-vision-utils==0.3.2
     - pytz==2020.4
     - pyyaml==5.3.1
     - requests==2.24.0
