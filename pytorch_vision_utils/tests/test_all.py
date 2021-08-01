@@ -1,7 +1,7 @@
 # from pytorch_vision_utils import pytorch_vision_utils
 from pytorch_vision_utils import Utilities
-from .Utilities import DataVisualizationUtilities, TrainingUtilities
-from .Utilities import clear_dirs, time_to_predict
+from Utilities import DataVisualizationUtilities, TrainingUtilities
+from Utilities import clear_dirs, time_to_predict
 
 from build_tests import build_test
 from subprocess import call
