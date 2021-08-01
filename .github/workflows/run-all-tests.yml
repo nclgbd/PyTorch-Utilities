@@ -40,4 +40,5 @@ jobs:
         echo $CONDA/bin >> $GITHUB_PATH
         conda activate torch_base
         ls -la
+        python setup.py develop
         pytest
