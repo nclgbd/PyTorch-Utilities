@@ -38,6 +38,35 @@ def get_timestamp():
     return timestamp
 
 
+
+def build(params="parameters.json"): 
+    """
+    Creates all of the necessary directories.
+
+    Parameters
+    ----------
+    `params` : `str`\n
+        String representation of the path to the json file containing the necessary parameters, by default `"parameters.json"`
+    """    
+    with open(params, "r") as f:
+        print("Loading parameters...\n")
+        params_ = dict(json.load(f))
+        
+        DATA_DIR = params_["DATA_DIR"]
+        TEST_DIR = params_["TEST_DIR"]
+        MODEL_DIR = params_["MODEL_DIR"]
+        MEDIA_DIR = params_["MEDIA_DIR"]
+        INC_DIR = params_["INC_DIR"]
+          
+    DIRS = [DATA_DIR, TEST_DIR, MODEL_DIR, MEDIA_DIR, INC_DIR]
+    
+    for dirs in DIRS:
+        clear_dirs(dirs)
+        print("Creating:", dirs)
+        os.makedirs(dirs, exist_ok=True)
+       
+
+
 def reload_models(model:nn.Module, model_dir:str, folder_name:str, device="cuda:0", debug=False) -> list:
     '''Reloads multiple models based on a directory passed through. Useful for quickly loading directories 
     

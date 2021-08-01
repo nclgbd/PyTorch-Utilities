@@ -1,27 +1,29 @@
-# This workflows will upload a Python Package using Twine when a release is created
-# For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: pypi
+name: Test Build Methods
 
 on:
-  release:
-    types: [created]
+  push:
+  pull_request:
+    branches: [ master ]
 
 jobs:
-  deploy:
-
+  build-and-test-env:
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        shell: bash -l {0}
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python
+    - uses: iterative/setup-dvc@v1
+    - name: Set up Python 3.6
       uses: actions/setup-python@v2
       with:
-        python-version: '3.x'
+        python-version: 3.6
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install setuptools wheel twine
         
         git clone https://github.com/nclgbd/pretrained-models.pytorch.git
         cd pretrained-models.pytorch
@@ -38,12 +40,9 @@ jobs:
         auto-update-conda: true
         auto-activate-base: false
         show-channel-urls: true
-    - name: Build and publish
-      env:
-        TWINE_USERNAME: ${{ secrets.PYPI_USERS }}
-        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+    - name: Run build and test scripts
       run: |
         echo $CONDA/bin >> $GITHUB_PATH
         conda activate torch_base
-        python setup.py sdist bdist_wheel
-        twine upload dist/pytorch_vision_utils-0.3.2.tar.gz
+        python tests/run-tests.py
+
