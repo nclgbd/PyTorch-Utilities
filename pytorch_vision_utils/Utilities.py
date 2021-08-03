@@ -938,7 +938,7 @@ class TrainingUtilities:
         return y_pred, y_true
     
     
-    def train(self, model_name:str, model_path:str, inc_path:str, show_graphs=True, dry_run=True, debug=False) -> tuple:
+    def train(self, model_name:str, model_path:str, inc_path:str, show_graphs=True, dry_run=True, debug=False, max_epoch=1000) -> tuple:
         """
         Wrapper function for the actual training method. Will likely be edited in the future to be more customizable.
 
@@ -954,6 +954,8 @@ class TrainingUtilities:
             Boolean representing whether or not to display graphs, by default True.
         `dry_run` : `bool`, `optional`\n
             Boolean representing whether we're training to evaluate hyperparameter tuning or training the model for model comparisons, by default True.
+        `max_epoch` : `int`, `optional`\n
+            Integer representing the maximum number of epochs to train the model for, by default 1000.
 
         Returns
         -------

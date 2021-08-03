@@ -43,11 +43,12 @@ RESULTS_DIR = str(os.path.join(cwd, "model_results"))
 INC_DIR = str(os.path.join(cwd, "incorrect_images"))
 DATA_DIR = str(os.path.join(cwd, "data"))
 
-train_utils = TrainingUtilities(data_dir=DATA_DIR, model_dir=MODEL_DIR, parameters_path=PARAMS, model_name=MODEL_NAME)
-dataviz_utils = DataVisualizationUtilities()
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("Using: ", device)
+
+train_utils = TrainingUtilities(data_dir=DATA_DIR, model_dir=MODEL_DIR, device=device, parameters_path=PARAMS, model_name=MODEL_NAME)
+dataviz_utils = DataVisualizationUtilities()
+
 
 
 ##################### T R A I N I N G #####################

@@ -4,11 +4,13 @@ from pytorch_vision_utils.Utilities import DataVisualizationUtilities, TrainingU
 from pytorch_vision_utils.Utilities import clear_dirs, time_to_predict
 
 from build_tests import build_test
-from subprocess import call
+from train_tests import run_epoch
 
 
 build_tests = [build_test]
-all_tests = [build_tests]
+train_tests = [run_epoch]
+
+all_tests = [build_tests, train_tests]
 for tests in all_tests:
     for test in tests:
         print("Running:", test.__name__)
