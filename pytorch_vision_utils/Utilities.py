@@ -65,7 +65,7 @@ def build(params="parameters.json"):
        
 
 
-def reload_models(model:nn.Module, model_dir:str, folder_name:str, device="cuda:0", debug=False) -> list:
+def reload_models(model:nn.Module, model_dir:str, folder_name:str, device="cuda", debug=False) -> list:
     '''Reloads multiple models based on a directory passed through. Useful for quickly loading directories 
     
     Parameters
@@ -77,7 +77,7 @@ def reload_models(model:nn.Module, model_dir:str, folder_name:str, device="cuda:
     `folder_name` : `str`\n
         Name of the folder.
     `device` : `str`, `optional`\n
-        String representation of the GPU core to use or the CPU, by default "cuda:0".
+        String representation of the GPU core to use or the CPU, by default "cuda".
     `debug` : `bool`, `optional`\n
         Boolean indicating whether to print out debugging information or not.
 
@@ -197,7 +197,7 @@ def remove_outliers(data:list, constant=1.5):
     return np.array(data_clean)
 
 
-def time_to_predict(model:nn.Module, loader:DataLoader, constant=1.5, device="cuda:0") -> list:
+def time_to_predict(model:nn.Module, loader:DataLoader, constant=1.5, device="cuda") -> list:
     """
     Calculates the time to predict on a dataset and removes outliers.
 
@@ -210,7 +210,7 @@ def time_to_predict(model:nn.Module, loader:DataLoader, constant=1.5, device="cu
     `constant` : `float`, `optional`\n
         Constant used for determining an outlier using the IQR, by default 1.5.
     `device` : `str`, `optional`\n
-        String representation of the GPU core to use or the CPU, by default "cuda:0".
+        String representation of the GPU core to use or the CPU, by default "cuda".
 
     Returns
     -------
@@ -337,17 +337,17 @@ class CustomDataset(Dataset):
   
 class DataVisualizationUtilities:
     
-    def __init__(self, device="cuda"):
+    def __init__(self, device):
         """
         This class serves as a collection of helpful functions when working with `torchvision` and image data in general.
 
         Attributes
         ----------
-        `device` : str, optional\n
-            String representation of the GPU core to use or the CPU, by default "cuda:0".
+        `device` : str\n
+            String representation of the GPU core to use or the CPU
         
         """                
-        self.device = device
+        self.device = device if device else torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     
     def _im_convert(self, tensor, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)) -> np.ndarray:
@@ -398,7 +398,7 @@ class DataVisualizationUtilities:
             ax.set_title(train_utils.classes[labels[idx].numpy()])
                 
     
-    def display_metric_results(self, fold:int, train_utils, figsize=(7, 7), device="cuda", img_dir="./incorrect_images"):
+    def display_metric_results(self, fold:int, train_utils, figsize=(7, 7), img_dir="./incorrect_images"):
         """
         Displays classification report and confusion matrix.
 
@@ -410,8 +410,6 @@ class DataVisualizationUtilities:
             TrainingUtilities instance.
         `figsize` : `tuple`, `optional`\n
             Tuple representing the dimensions of the figure in inches, by default (7, 7).
-        `device` : `str`, `optional`\n
-            String representation of the GPU core to use or the CPU, by default "cuda:0".
         `img_dir` : `str`, `optional`\n
             String representation of the path to the incorrect images directory, by default "./incorrect_images".
             
@@ -420,7 +418,7 @@ class DataVisualizationUtilities:
         with torch.no_grad():
             y_pred, y_true = train_utils.get_predictions(fold, img_dir=img_dir)
             
-        y_true = torch.tensor(y_true).to(device, dtype=torch.long)
+        y_true = torch.tensor(y_true).to(self.device, dtype=torch.long)
         xticks = yticks = train_utils.classes
         
         print("Classification Report\n")
@@ -557,7 +555,7 @@ class DataVisualizationUtilities:
 
 class TrainingUtilities:
     
-    def __init__(self, data_dir:str, model_dir:str, model_name:str, parameters_path="parameters.json", mode="train"):
+    def __init__(self, data_dir:str, model_dir:str, model_name:str, device:str, parameters_path="parameters.json", mode="train"):
         """
         Useful functions for training PyTorch models. Providing a `/path/to/parameters.json` is required to work properly, assumed to be in
         the project directory. Encapsulates all of the hyperparameter tuning into one convenient class to toy with by hand or automate by 
@@ -576,6 +574,8 @@ class TrainingUtilities:
             String representation of the path to the directory of which to save the models.
         `model_name` : `str`\n
             Name of the model.
+        `device` : `str`\n
+            String representation of the device to train on
         `parameters_path` : `str`, `optional`\n
             String representation of the path to the "parameters.json" file, by default "parameters.json".
         `mode` : `str`, `optional`\n
@@ -585,7 +585,7 @@ class TrainingUtilities:
         self.data_dir = data_dir
         self.model_dir = model_dir
         self.parameters_path = parameters_path
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")      
+        self.device = device if device else torch.device("cuda" if torch.cuda.is_available() else "cpu")     
         self.model = nn.Module().to(device=self.device)
         
         # VARIABLE INITIALIZATION
@@ -848,7 +848,7 @@ class TrainingUtilities:
         return folds, np.array(X), np.array(y), np.array(ids)
     
     
-    def _loop_fn(self, dataset:Dataset, loader:DataLoader, criterion, optimizer, device="cuda:0", ascii_=False) -> tuple:
+    def _loop_fn(self, dataset:Dataset, loader:DataLoader, criterion, optimizer, ascii_=False) -> tuple:
         """
         The function that actually does the loop for training. Likely isn't used directly, refer to the `train` or `_train` function.
 
@@ -862,8 +862,6 @@ class TrainingUtilities:
             The loss function.
         `optimizer`\n
             The optimization function.
-        `device` : `str`, `optional`\n
-            String representation of the GPU core to use or the CPU, by default "cuda:0".
         `ascii_` : `bool`, `optional`\n
             Boolean representation of the ascii mode, by default False.
 
@@ -880,7 +878,7 @@ class TrainingUtilities:
 
         cost = correct = 0
         for feature, target in tqdm(loader, ascii=ascii_, desc=self.mode.title()):
-            feature, target = feature.to(device, dtype=torch.float32), target.to(device, dtype=torch.long)
+            feature, target = feature.to(self.device, dtype=torch.float32), target.to(self.device, dtype=torch.long)
             output = self.model(feature)
             loss = criterion(output, target)
             self.model.metric = loss
@@ -899,7 +897,7 @@ class TrainingUtilities:
         
     
     @torch.no_grad() # https://deeplizard.com/learn/video/0LhiS6yu2qQ
-    def get_predictions(self, fold, img_dir, device="cuda:0") -> tuple:
+    def get_predictions(self, fold, img_dir) -> tuple:
         """
         Gets all of the predictions. Useful for determining model performance.
 
@@ -909,8 +907,6 @@ class TrainingUtilities:
             Number representing the current fold during k-fold cross validation.
         `img_dir` : `str`\n
             String representation of the path to the incorrect image directory.
-        `device` : `str`, `optional`\n
-            String representation of the GPU core to use or the CPU, by default "cuda:0".
 
         Returns
         -------
@@ -918,15 +914,15 @@ class TrainingUtilities:
             Returns a tuple containing the model predictions and the ground truths.
         """        
         
-        y_pred = torch.tensor([]).to(device, dtype=torch.long)
-        y_true = torch.tensor([]).to(device, dtype=torch.long)
+        y_pred = torch.tensor([]).to(self.device, dtype=torch.long)
+        y_true = torch.tensor([]).to(self.device, dtype=torch.long)
         
         for images, labels in self.loader:
-            images = images.to(device, dtype=torch.float32)
-            labels = labels.to(device, dtype=torch.long)
-            target = labels.to(device, dtype=torch.long).cpu().numpy()[0]
+            images = images.to(self.device, dtype=torch.float32)
+            labels = labels.to(self.device, dtype=torch.long)
+            target = labels.to(self.device, dtype=torch.long).cpu().numpy()[0]
             
-            pred = self.model(images).to(device, dtype=torch.long)
+            pred = self.model(images).to(self.device, dtype=torch.long)
             y_pred = torch.cat((y_pred, pred), dim=0)
             y_true = torch.cat((y_true, labels), dim=0)
             
@@ -1019,7 +1015,7 @@ class TrainingUtilities:
     
     # https://stackoverflow.com/questions/58996242/cross-validation-for-mnist-dataset-with-pytorch-and-sklearn
     def _train(self, train_dataset:Dataset, test_dataset:Dataset, filepath:str, criterion, optimizer, fold:int, max_epoch=1000, 
-               scheduler=None, shuffle=True, device="cuda", ascii_=False, show_graphs=True, dry_run=False, inc_path="") -> tuple:
+               scheduler=None, shuffle=True, ascii_=False, show_graphs=True, dry_run=False, inc_path="") -> tuple:
         """Does the actual training. Implements early stopping and some debugging.
         """        
         
@@ -1035,10 +1031,10 @@ class TrainingUtilities:
         for e in range(max_epoch):
             print(f'\nEpoch {fold}.{epoch}')
             self.set_mode("train")
-            train_cost, train_score = self._loop_fn(train_dataset, train_loader, criterion, optimizer, device, ascii_=ascii_)
+            train_cost, train_score = self._loop_fn(train_dataset, train_loader, criterion, optimizer, self.device, ascii_=ascii_)
             with torch.no_grad():
                 self.set_mode("test")
-                test_cost, test_score = self._loop_fn(test_dataset, test_loader, criterion, optimizer, device, ascii_=ascii_)
+                test_cost, test_score = self._loop_fn(test_dataset, test_loader, criterion, optimizer, self.device, ascii_=ascii_)
                 
             if scheduler:
                 scheduler.step(test_cost)
