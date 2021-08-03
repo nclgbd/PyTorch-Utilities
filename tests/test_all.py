@@ -10,7 +10,7 @@ from train_tests import run_epoch
 build_tests = [build_test]
 train_tests = [run_epoch]
 
-all_tests = [build_tests, train_tests]
+all_tests = [build_tests]
 for tests in all_tests:
     for test in tests:
         print("Running:", test.__name__)

@@ -20,5 +20,5 @@ train_utils = TrainingUtilities(data_dir=TEST_DIR, model_dir=MODEL_DIR, model_na
 
 def run_epoch():
     results = tuple() # empty tuple
-    results = train_utils.train(model_name=MODEL_NAME, model_path=MODEL_DIR, inc_path=INC_DIR, show_graphs=True, dry_run=False, debug=DEBUG)
+    results = train_utils.train(model_name=MODEL_NAME, model_path=MODEL_DIR, inc_path=INC_DIR, show_graphs=False, dry_run=True, debug=True)
     return -1 if len(results) == 0 else 0
