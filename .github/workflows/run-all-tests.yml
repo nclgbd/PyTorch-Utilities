@@ -31,7 +31,7 @@ jobs:
     - name: Install pip dependencies
       run: |
         echo $CONDA/bin >> $GITHUB_PATH
-        conda activate torch_base
+        conda activate pytorch_vision_dev
         python -m pip install --upgrade pip
         pip install pytest
 
