@@ -21,9 +21,9 @@ jobs:
     - name: Conda environment creation and activation
       uses: conda-incubator/setup-miniconda@v2
       with:
-        activate-environment: torch_base
+        activate-environment: pytorch_vision_dev
         python-version: 3.6
-        environment-file: conda-envs/torch_base.yml    # Path to the build conda environment
+        environment-file: conda-envs/pytorch_vision_dev.yml    # Path to the build conda environment
         auto-update-conda: true
         auto-activate-base: false
         show-channel-urls: true
@@ -31,14 +31,14 @@ jobs:
     - name: Install pip dependencies
       run: |
         echo $CONDA/bin >> $GITHUB_PATH
-        conda activate torch_base
+        conda activate pytorch_vision_dev
         python -m pip install --upgrade pip
         pip install pytest
 
     - name: Run build and test scripts
       run: |
         echo $CONDA/bin >> $GITHUB_PATH
-        conda activate torch_base
+        conda activate pytorch_vision_dev
         ls -la
         python setup.py develop
-        pytest
+        pytest -v -s

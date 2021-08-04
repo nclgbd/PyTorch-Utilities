@@ -1,0 +1,40 @@
+{
+    "CLASSES": ["N/A", "TOWAWAY"],
+    "N_SPLITS": 2,
+    "mobilenetv2": {
+        "BATCH_SIZE": 8,
+        "ETA": 0.0001,
+        "PATIENCE": 2,
+        "CROP_SIZE": 224,
+        "DEGREES": 20,
+        "HUE": 0.3,
+        "BRIGHTNESS":0.2,
+        "SATURATION": 0.2,
+        "CONTRAST": 0.2,
+        "MONITOR": "val_loss",
+        "MIN_DELTA": 0,
+        "LR_PATIENCE": 5,
+        "FACTOR": 0.5,
+        "INPUT_SIZE": [224, 224],
+        "MEAN": [0.485, 0.456, 0.406],
+        "STD": [0.229, 0.224, 0.225]
+    },
+    "xception": {
+        "BATCH_SIZE": 8,
+        "ETA": 0.0001,
+        "PATIENCE": 7,
+        "CROP_SIZE": 299,
+        "DEGREES": 20,
+        "HUE": 0.3,
+        "BRIGHTNESS":0.2,
+        "SATURATION": 0.2,
+        "CONTRAST": 0.2,
+        "MONITOR": "val_loss",
+        "MIN_DELTA": 0,
+        "LR_PATIENCE": 5,
+        "FACTOR": 0.5,
+        "INPUT_SIZE": [299, 299],
+        "MEAN": [0.5, 0.5, 0.5],
+        "STD": [0.5, 0.5, 0.5]
+    }
+}

@@ -3,7 +3,6 @@ import sys
 import torch
 
 from pytorch_vision_utils.Utilities import DataVisualizationUtilities, TrainingUtilities
-from pytorch_vision_utils.Utilities import clear_dirs, time_to_predict
 
 
 def build_test():
@@ -26,3 +25,6 @@ def build_test():
     return 0
 
 
+
+def test_build_tests():
+    assert build_test() == 0
