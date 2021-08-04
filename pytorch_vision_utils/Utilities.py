@@ -398,7 +398,7 @@ class DataVisualizationUtilities:
             ax.set_title(train_utils.classes[labels[idx].numpy()])
                 
     
-    def display_metric_results(self, fold:int, train_utils, figsize=(7, 7), img_dir="./incorrect_images"):
+    def display_metric_results(self, fold:int, train_utils, figsize=(7, 7), img_dir="./incorrect_images", media_dir="./media"):
         """
         Displays classification report and confusion matrix.
 
@@ -412,6 +412,8 @@ class DataVisualizationUtilities:
             Tuple representing the dimensions of the figure in inches, by default (7, 7).
         `img_dir` : `str`, `optional`\n
             String representation of the path to the incorrect images directory, by default "./incorrect_images".
+        `media_dir` : `str`\n
+            String representation of the path to the media directory.
             
         """        
         
@@ -431,8 +433,8 @@ class DataVisualizationUtilities:
         sns.heatmap(cnf_mat, xticklabels=xticks, yticklabels=yticks, annot=True, cmap="Blues_r")
         plt.ylabel('Ground Truth')
         plt.xlabel('Predictions')
-        plt.title("Confusion Matrix " + train_utils.model_name)
-        plt.show()  
+        return plt
+        
         
         
     def display_results(self, loss:float, acc:float, val_loss:float, val_acc:float, title:str, figsize=(7, 7)):
@@ -475,7 +477,7 @@ class DataVisualizationUtilities:
         plt.ylim([0, y_upper_bound+y_upper_bound*0.2])
         plt.title('Training and Validation Loss '+ title)
         plt.xlabel('epoch')
-        plt.show() 
+        return plt
         
         
     def display_benchmark_results(self, pred_times1, pred_times2, model_name1:str, model_name2:str, figsize=(7, 7), shade=True, 
@@ -516,7 +518,7 @@ class DataVisualizationUtilities:
         plt.xlim([0, x_max+x_max*0.3])
         plt.title(f'Benchmark Results')
         plt.legend(loc="upper right")
-        plt.show()
+        return plt
 
         
     def display_roc_curve(self, fold:int, train_utils, figsize=(7, 7)):
@@ -550,7 +552,8 @@ class DataVisualizationUtilities:
         plt.xlabel("False Positive Rate")
         plt.ylabel("True Positive Rate")
         plt.legend(loc="lower right")
-        plt.show()
+        return plt
+        # plt.show()
 
 
 class TrainingUtilities:
@@ -938,7 +941,7 @@ class TrainingUtilities:
         return y_pred, y_true
     
     
-    def train(self, model_name:str, model_path:str, inc_path:str, show_graphs=True, dry_run=True, debug=False, max_epoch=1000) -> tuple:
+    def train(self, model_name:str, model_path:str, inc_path:str, media_dir:str, show_graphs=True, dry_run=True, debug=False, max_epoch=1000) -> tuple:
         """
         Wrapper function for the actual training method. Will likely be edited in the future to be more customizable.
 
@@ -950,6 +953,8 @@ class TrainingUtilities:
             String representation of the path to the model checkpoint path.
         `inc_path` : `str`\n
             String representation of the path to the incorrect images path.
+        `media_dir` : `str`\n
+            String representation of the path to the media directory.
         `show_graphs` : `bool`, `optional`\n
             Boolean representing whether or not to display graphs, by default True.
         `dry_run` : `bool`, `optional`\n
@@ -1006,7 +1011,7 @@ class TrainingUtilities:
             optimizer = torch.optim.Adam(self.model.parameters(), lr=self.eta)
             lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=self.factor, patience=self.lr_patience, verbose=True)
             loss, acc = self._train(train_dataset, test_dataset, model_path, criterion, optimizer, fold+1, ascii_=True, scheduler=lr_scheduler, dry_run=dry_run, 
-                                    show_graphs=show_graphs, inc_path=inc_path, max_epoch=max_epoch)
+                                    show_graphs=show_graphs, inc_path=inc_path, max_epoch=max_epoch, media_dir=media_dir)
             losses.append(loss)
             accuracies.append(acc)
             
@@ -1018,7 +1023,7 @@ class TrainingUtilities:
     
     # https://stackoverflow.com/questions/58996242/cross-validation-for-mnist-dataset-with-pytorch-and-sklearn
     def _train(self, train_dataset:Dataset, test_dataset:Dataset, filepath:str, criterion, optimizer, fold:int, max_epoch=1000, 
-               scheduler=None, shuffle=True, ascii_=False, show_graphs=True, dry_run=False, inc_path="") -> tuple:
+               scheduler=None, shuffle=True, ascii_=False, show_graphs=True, dry_run=False, inc_path="incorrect_images/", media_dir="media/") -> tuple:
         """Does the actual training. Implements early stopping and some debugging.
         """        
         
@@ -1052,12 +1057,21 @@ class TrainingUtilities:
             print(f'Early Stopping Patience at: {es_counter}')
                 
             if es_counter == self.patience:
+                self.model.eval()
+                results_graph = DataVisualizationUtilities().display_results(train_total_loss, train_total_acc, val_total_loss, val_total_acc, 
+                                                                         title=early_stopping.model_name)
+                results_graph.savefig("{}results_graph_{}_{}".format(media_dir, self.model_name, fold))
+                
+                metrics_graph = DataVisualizationUtilities().display_metric_results(fold=fold, train_utils=self, img_dir=inc_path)
+                metrics_graph.savefig("{}metrics_graph_{}_{}".format(media_dir, self.model_name, fold))
+                
+                roc_graph = DataVisualizationUtilities().display_roc_curve(0, train_utils=self)
+                roc_graph.savefig("{}roc_graph_{}_{}".format(media_dir, self.model_name, fold))
+            
                 if show_graphs:
-                    self.model.eval()
-                    DataVisualizationUtilities().display_results(train_total_loss, train_total_acc, val_total_loss, val_total_acc, 
-                                                       title=early_stopping.model_name)
-                    
-                    DataVisualizationUtilities().display_metric_results(fold=fold, train_utils=self, img_dir=inc_path)
+                    results_graph.show()
+                    metrics_graph.show()
+                    roc_graph.show()
                     
                 break
             

@@ -41,4 +41,5 @@ jobs:
         conda activate pytorch_vision_dev
         ls -la
         python setup.py develop
+        mkdir media/ incorrect_images/ saved_models/
         pytest -v -s
