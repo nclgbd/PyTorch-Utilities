@@ -13,8 +13,7 @@ MEDIA_DIR = str(os.path.join(cwd, 'media'))
 INC_DIR = str(os.path.join(cwd, 'incorrect_images'))
 MODEL_NAME = "mobilenetv2"
 
-
-# TrainingUtilities created
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 train_utils = TrainingUtilities(data_dir=TEST_DIR, model_dir=MODEL_DIR, model_name="mobilenetv2")
 
 

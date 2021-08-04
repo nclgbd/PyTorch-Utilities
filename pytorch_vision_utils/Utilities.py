@@ -555,7 +555,7 @@ class DataVisualizationUtilities:
 
 class TrainingUtilities:
     
-    def __init__(self, data_dir:str, model_dir:str, model_name:str, device:str, parameters_path="parameters.json", mode="train"):
+    def __init__(self, data_dir:str, model_dir:str, model_name:str, device="", parameters_path="parameters.json", mode="train"):
         """
         Useful functions for training PyTorch models. Providing a `/path/to/parameters.json` is required to work properly, assumed to be in
         the project directory. Encapsulates all of the hyperparameter tuning into one convenient class to toy with by hand or automate by 
@@ -574,8 +574,8 @@ class TrainingUtilities:
             String representation of the path to the directory of which to save the models.
         `model_name` : `str`\n
             Name of the model.
-        `device` : `str`\n
-            String representation of the device to train on
+        `device` : `str`, `optional`\n
+            String representation of the device to train on, by default ""
         `parameters_path` : `str`, `optional`\n
             String representation of the path to the "parameters.json" file, by default "parameters.json".
         `mode` : `str`, `optional`\n
