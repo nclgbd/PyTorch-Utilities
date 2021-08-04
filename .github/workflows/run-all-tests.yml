@@ -21,7 +21,7 @@ jobs:
     - name: Conda environment creation and activation
       uses: conda-incubator/setup-miniconda@v2
       with:
-        activate-environment: torch_base
+        activate-environment: pytorch_vision_dev
         python-version: 3.6
         environment-file: conda-envs/pytorch_vision_dev.yml    # Path to the build conda environment
         auto-update-conda: true
