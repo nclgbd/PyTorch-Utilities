@@ -337,7 +337,7 @@ class CustomDataset(Dataset):
   
 class DataVisualizationUtilities:
     
-    def __init__(self, device):
+    def __init__(self, device=""):
         """
         This class serves as a collection of helpful functions when working with `torchvision` and image data in general.
 
