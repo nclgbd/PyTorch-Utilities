@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: pytorch-vision-utils
-Version: 0.3.3
+Version: 0.3.4
 Summary: PyTorch training and data visualization utilities
 Home-page: https://github.com/nclgbd/PyTorch-Utilities
 Author: Nicole Gu
