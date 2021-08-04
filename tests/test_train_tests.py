@@ -21,3 +21,7 @@ def run_epoch():
     results = tuple() # empty tuple
     results = train_utils.train(model_name=MODEL_NAME, model_path=MODEL_DIR, inc_path=INC_DIR, show_graphs=False, dry_run=True, debug=True, max_epoch=2)
     return -1 if len(results) == 0 else 0
+
+
+def test_run_epoch():
+    assert run_epoch() == 0

@@ -1005,7 +1005,8 @@ class TrainingUtilities:
             criterion = nn.CrossEntropyLoss()
             optimizer = torch.optim.Adam(self.model.parameters(), lr=self.eta)
             lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=self.factor, patience=self.lr_patience, verbose=True)
-            loss, acc = self._train(train_dataset, test_dataset, model_path, criterion, optimizer, fold+1, ascii_=True, scheduler=lr_scheduler, dry_run=dry_run, show_graphs=show_graphs, inc_path=inc_path)
+            loss, acc = self._train(train_dataset, test_dataset, model_path, criterion, optimizer, fold+1, ascii_=True, scheduler=lr_scheduler, dry_run=dry_run, 
+                                    show_graphs=show_graphs, inc_path=inc_path, max_epoch=max_epoch)
             losses.append(loss)
             accuracies.append(acc)
             
@@ -1033,10 +1034,10 @@ class TrainingUtilities:
         for e in range(max_epoch):
             print(f'\nEpoch {fold}.{epoch}')
             self.set_mode("train")
-            train_cost, train_score = self._loop_fn(train_dataset, train_loader, criterion, optimizer, self.device, ascii_=ascii_)
+            train_cost, train_score = self._loop_fn(train_dataset, train_loader, criterion, optimizer, ascii_=ascii_)
             with torch.no_grad():
                 self.set_mode("test")
-                test_cost, test_score = self._loop_fn(test_dataset, test_loader, criterion, optimizer, self.device, ascii_=ascii_)
+                test_cost, test_score = self._loop_fn(test_dataset, test_loader, criterion, optimizer, ascii_=ascii_)
                 
             if scheduler:
                 scheduler.step(test_cost)

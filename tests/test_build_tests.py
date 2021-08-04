@@ -25,3 +25,6 @@ def build_test():
     return 0
 
 
+
+def test_build_tests():
+    assert build_test() == 0
