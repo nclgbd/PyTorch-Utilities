@@ -41,4 +41,4 @@ jobs:
         conda activate pytorch_vision_dev
         ls -la
         python setup.py develop
-        pytest
+        pytest -v -s
