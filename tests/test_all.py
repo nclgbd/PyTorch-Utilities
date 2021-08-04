@@ -1,5 +1,4 @@
 # from pytorch_vision_utils import pytorch_vision_utils
-from pytorch_vision_utils import Utilities
 from pytorch_vision_utils.Utilities import DataVisualizationUtilities, TrainingUtilities
 from pytorch_vision_utils.Utilities import clear_dirs, time_to_predict
 

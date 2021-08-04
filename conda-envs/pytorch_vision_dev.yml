@@ -1,4 +1,4 @@
-name: torch_base
+name: pytorch_vision_dev
 channels:
   - pytorch
   - defaults
@@ -85,5 +85,6 @@ dependencies:
     - setuptools==57.0.0
     - tqdm==4.51.0
     - urllib3==1.25.11
-prefix: C:\Users\nicol\Anaconda3\envs\torch_base
-# conda env update -f conda-envs/torch_base.yml --prune
+prefix: C:\Users\nicol\Anaconda3\envs\torch_base\pytorch_vision_dev
+# conda env update -f conda-envs/pytorch_vision_dev.yml --prune
+# pip install -e .
