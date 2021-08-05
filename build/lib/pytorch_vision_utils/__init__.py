@@ -1,5 +1,8 @@
-import os
+# import os
+# os.system("conda activate torch_base")
 
-os.system("pip install -r requirements.txt")
+from . import custom_models
+from . import CustomModels
+from . import Utilities
 
-import pretrainedmodels
+version='0.3.5'
