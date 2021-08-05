@@ -426,7 +426,9 @@ class DataVisualizationUtilities:
         xticks = yticks = train_utils.classes
         
         print("Classification Report\n")
-        print(classification_report(y_true.cpu(), y_pred.argmax(dim=1).cpu(), target_names=xticks))
+        clr = classification_report(y_true.cpu(), y_pred.argmax(dim=1).cpu(), target_names=xticks)
+        print(clr)
+        train_utils.md_file.new_paragraph(str(clr))
         print("Confusion Matrix")
         cnf_mat = confusion_matrix(y_true.cpu(), y_pred.argmax(dim=1).cpu())
 
@@ -520,7 +522,8 @@ class DataVisualizationUtilities:
         plt.xlim([0, x_max+x_max*0.3])
         plt.title(f'Benchmark Results')
         plt.legend(loc="upper right")
-        return plt
+        plt.show()
+        # return plt
 
         
     def display_roc_curve(self, fold:int, train_utils, figsize=(7, 7)):
@@ -955,7 +958,7 @@ class TrainingUtilities:
         `plot_path` : `str`\n
             String representation of the path to the plot image
         """        
-        self.md_file.new_header(level=2, title=plot_name)
+        self.md_file.new_header(level=1, title=plot_name)
         self.md_file.new_paragraph("![{}]({})".format(plot_name, plot_path+"/"+plot_name))
     
     
@@ -1106,7 +1109,7 @@ class TrainingUtilities:
             
             epoch += 1
             
-        self.md_file.new_table_of_contents(table_title='Plots', depth=2)
+        self.md_file.new_table_of_contents(table_title='Plots', depth=1)
         self.md_file.create_md_file()
         return early_stopping.min_loss, early_stopping.max_acc
     
