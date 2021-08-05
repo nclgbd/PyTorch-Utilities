@@ -6,8 +6,8 @@ import json
 import os
 import hashlib
 import random
-import mdutils
 
+from mdutils.mdutils import MdUtils
 from datetime import datetime
 from PIL import Image
 from statistics import mean
@@ -592,7 +592,7 @@ class TrainingUtilities:
         self.parameters_path = parameters_path
         self.device = device if device else torch.device("cuda" if torch.cuda.is_available() else "cpu")     
         self.model = nn.Module().to(device=self.device)
-        self.md_file = mdutils(file_name='media/report.md',title='Results')
+        self.md_file = MdUtils(file_name='media/report.md',title='Results')
         
         # VARIABLE INITIALIZATION
         self.model_name = model_name

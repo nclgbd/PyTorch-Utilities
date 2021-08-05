@@ -2,7 +2,7 @@ import os
 import sys
 import torch
 import zipfile
-import mdutils
+from mdutils.mdutils import MdUtils
 
 from pytorch_vision_utils.Utilities import TrainingUtilities
 from pytorch_vision_utils.Utilities import clear_dirs, build
