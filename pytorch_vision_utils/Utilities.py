@@ -947,19 +947,21 @@ class TrainingUtilities:
         return y_pred, y_true
             
             
-    def add_plot_to_md(self, plot_name:str, plot_path:str):
+    def add_plot_to_md(self, title:str, plot_name:str, plot_path:str):
         """
         Adds a plot to the report markdown.
 
         Parameters
         ----------
+        `title` : `str`\n
+            The title for the plot
         `plot_name` : `str`\n
             The name of the plot
         `plot_path` : `str`\n
             String representation of the path to the plot image
         """        
-        self.md_file.new_header(level=1, title=plot_name)
-        self.md_file.new_paragraph("![{}]({})".format(plot_name, plot_path+"/"+plot_name))
+        self.md_file.new_header(level=2, title=title)
+        self.md_file.new_paragraph("![{}]({}.png)".format(plot_name, plot_path+plot_name))
     
     
     def train(self, model_name:str, model_path:str, inc_path:str, media_dir:str, show_graphs=True, dry_run=True, debug=False, max_epoch=1000) -> tuple:
@@ -1019,7 +1021,13 @@ class TrainingUtilities:
                 
             avg_loss = mean(losses)
             avg_acc = mean(accuracies)
-            print(f'Average Loss: {avg_loss:.5f}  |  Average Accuracy: {avg_acc:.5f}')
+            
+            results = f'Average Loss: {avg_loss:.5f}  |  Average Accuracy: {avg_acc:.5f}'
+            print(results)
+            
+            self.md_file.new_paragraph(results)
+            self.md_file.new_table_of_contents(table_title='Plots', depth=1)
+            self.md_file.create_md_file()
             return avg_loss, avg_acc
             
         else:
@@ -1038,7 +1046,13 @@ class TrainingUtilities:
             
             avg_loss = mean(losses)
             avg_acc = mean(accuracies)
-            print(f'Average Loss: {avg_loss:.5f}  |  Average Accuracy: {avg_acc:.5f}')
+            
+            results = f'Average Loss: {avg_loss:.5f}  |  Average Accuracy: {avg_acc:.5f}'
+            print(results)
+            
+            self.md_file.new_paragraph(results)
+            self.md_file.new_table_of_contents(table_title='Plots', depth=1)
+            self.md_file.create_md_file()
             return avg_loss, avg_acc
     
     
@@ -1080,24 +1094,29 @@ class TrainingUtilities:
             if es_counter == self.patience:
                 self.model.eval()
                 
+                title = self.model_name
+                
                 # RESULTS GRAPH
                 results = "results_graph_{}_{}".format(self.model_name, fold)
                 results_graph = DataVisualizationUtilities().display_results(train_total_loss, train_total_acc, val_total_loss, val_total_acc, 
                                                                          title=early_stopping.model_name)
                 results_graph.savefig(media_dir+"/"+results)
-                self.add_plot_to_md(results, media_dir)
+                self.add_plot_to_md("{} training results fold {}".format(self.model_name, fold), results, media_dir)
+                
                 
                 # METRICS GRAPH
                 metrics = "metrics_graph_{}_{}".format(self.model_name, fold)
                 metrics_graph = DataVisualizationUtilities().display_metric_results(fold=fold, train_utils=self, img_dir=inc_path)
                 metrics_graph.savefig(media_dir+"/"+metrics)
-                self.add_plot_to_md(metrics, media_dir)
+                self.add_plot_to_md("{} classification report fold {}".format(self.model_name, fold), metrics, media_dir)
+                
                 
                 # ROC GRAPH
                 roc = "roc_graph_{}_{}".format(self.model_name, fold)
                 roc_graph = DataVisualizationUtilities().display_roc_curve(0, train_utils=self)
                 roc_graph.savefig(media_dir+"/"+roc)
-                self.add_plot_to_md(roc, media_dir)
+                self.add_plot_to_md("{} roc curve fold {}".format(self.model_name, fold), roc, media_dir)
+            
             
                 # DISPLAY GRAPHS
                 if show_graphs:
@@ -1108,9 +1127,7 @@ class TrainingUtilities:
                 break
             
             epoch += 1
-            
-        self.md_file.new_table_of_contents(table_title='Plots', depth=1)
-        self.md_file.create_md_file()
+
         return early_stopping.min_loss, early_stopping.max_acc
     
                 
