@@ -1106,6 +1106,8 @@ class TrainingUtilities:
             
             epoch += 1
             
+        self.md_file.new_table_of_contents(table_title='Plots', depth=2)
+        self.md_file.create_md_file()
         return early_stopping.min_loss, early_stopping.max_acc
     
                 
