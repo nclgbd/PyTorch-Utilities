@@ -43,3 +43,4 @@ jobs:
         python setup.py develop
         mkdir media/ incorrect_images/ saved_models/
         pytest -v -s
+        ls -la media/
