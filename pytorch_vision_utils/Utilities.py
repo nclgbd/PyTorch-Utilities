@@ -955,9 +955,8 @@ class TrainingUtilities:
         `plot_path` : `str`\n
             String representation of the path to the plot image
         """        
-        _plot_name = plot_name[:4]
-        self.md_file.new_header(level=1, title='{}'._plot_name)
-        self.md_file.new_paragraph("![{}]({})".format(_plot_name, plot_path))
+        self.md_file.new_header(level=1, title='{}'.plot_name)
+        self.md_file.new_paragraph("![{}]({})".format(plot_name, plot_path+"/"+plot_name))
     
     
     def train(self, model_name:str, model_path:str, inc_path:str, media_dir:str, show_graphs=True, dry_run=True, debug=False, max_epoch=1000) -> tuple:
@@ -1079,23 +1078,23 @@ class TrainingUtilities:
                 self.model.eval()
                 
                 # RESULTS GRAPH
-                results = "{}results_graph_{}_{}".format(media_dir, self.model_name, fold)
+                results = "results_graph_{}_{}".format(self.model_name, fold)
                 results_graph = DataVisualizationUtilities().display_results(train_total_loss, train_total_acc, val_total_loss, val_total_acc, 
                                                                          title=early_stopping.model_name)
                 results_graph.savefig(results)
-                self.add_plot_to_md(results)
+                self.add_plot_to_md(results, media_dir)
                 
                 # METRICS GRAPH
-                metrics = "{}metrics_graph_{}_{}".format(media_dir, self.model_name, fold)
+                metrics = "metrics_graph_{}_{}".format(self.model_name, fold)
                 metrics_graph = DataVisualizationUtilities().display_metric_results(fold=fold, train_utils=self, img_dir=inc_path)
                 metrics_graph.savefig(metrics)
-                self.add_plot_to_md(metrics)
+                self.add_plot_to_md(metrics, media_dir)
                 
                 # ROC GRAPH
-                roc = "{}roc_graph_{}_{}".format(media_dir, self.model_name, fold)
+                roc = "roc_graph_{}_{}".format(self.model_name, fold)
                 roc_graph = DataVisualizationUtilities().display_roc_curve(0, train_utils=self)
                 roc_graph.savefig(roc)
-                self.add_plot_to_md(roc)
+                self.add_plot_to_md(roc, media_dir)
             
                 # DISPLAY GRAPHS
                 if show_graphs:
