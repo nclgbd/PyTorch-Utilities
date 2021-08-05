@@ -955,7 +955,7 @@ class TrainingUtilities:
         `plot_path` : `str`\n
             String representation of the path to the plot image
         """        
-        self.md_file.new_header(level=1, title='{}'.plot_name)
+        self.md_file.new_header(level=2, title=plot_name)
         self.md_file.new_paragraph("![{}]({})".format(plot_name, plot_path+"/"+plot_name))
     
     
