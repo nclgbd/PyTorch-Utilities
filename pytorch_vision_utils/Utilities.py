@@ -6,6 +6,7 @@ import json
 import os
 import hashlib
 import random
+import mdutils
 
 from datetime import datetime
 from PIL import Image
@@ -396,6 +397,7 @@ class DataVisualizationUtilities:
             ax = fig.add_subplot(2, 10, idx+1, xticks=[], yticks=[])
             plt.imshow(self._im_convert(images[idx], mean=train_utils.mean, std=train_utils.std))
             ax.set_title(train_utils.classes[labels[idx].numpy()])
+
                 
     
     def display_metric_results(self, fold:int, train_utils, figsize=(7, 7), img_dir="./incorrect_images", media_dir="./media"):
@@ -590,6 +592,7 @@ class TrainingUtilities:
         self.parameters_path = parameters_path
         self.device = device if device else torch.device("cuda" if torch.cuda.is_available() else "cpu")     
         self.model = nn.Module().to(device=self.device)
+        self.md_file = mdutils(file_name='media/report.md',title='Results')
         
         # VARIABLE INITIALIZATION
         self.model_name = model_name
@@ -939,6 +942,22 @@ class TrainingUtilities:
                     save_image(tensor_img, img_dir+f"/{self.model_name}_fold_{fold}/{hash_}_{labels[idx]}.png")
                                      
         return y_pred, y_true
+            
+            
+    def add_plot_to_md(self, plot_name:str, plot_path:str):
+        """
+        Adds a plot to the report markdown.
+
+        Parameters
+        ----------
+        `plot_name` : `str`\n
+            The name of the plot
+        `plot_path` : `str`\n
+            String representation of the path to the plot image
+        """        
+        _plot_name = plot_name[:4]
+        self.md_file.new_header(level=1, title='{}'._plot_name)
+        self.md_file.new_paragraph("![{}]({})".format(_plot_name, plot_path))
     
     
     def train(self, model_name:str, model_path:str, inc_path:str, media_dir:str, show_graphs=True, dry_run=True, debug=False, max_epoch=1000) -> tuple:
@@ -1058,16 +1077,27 @@ class TrainingUtilities:
                 
             if es_counter == self.patience:
                 self.model.eval()
+                
+                # RESULTS GRAPH
+                results = "{}results_graph_{}_{}".format(media_dir, self.model_name, fold)
                 results_graph = DataVisualizationUtilities().display_results(train_total_loss, train_total_acc, val_total_loss, val_total_acc, 
                                                                          title=early_stopping.model_name)
-                results_graph.savefig("{}results_graph_{}_{}".format(media_dir, self.model_name, fold))
+                results_graph.savefig(results)
+                self.add_plot_to_md(results)
                 
+                # METRICS GRAPH
+                metrics = "{}metrics_graph_{}_{}".format(media_dir, self.model_name, fold)
                 metrics_graph = DataVisualizationUtilities().display_metric_results(fold=fold, train_utils=self, img_dir=inc_path)
-                metrics_graph.savefig("{}metrics_graph_{}_{}".format(media_dir, self.model_name, fold))
+                metrics_graph.savefig(metrics)
+                self.add_plot_to_md(metrics)
                 
+                # ROC GRAPH
+                roc = "{}roc_graph_{}_{}".format(media_dir, self.model_name, fold)
                 roc_graph = DataVisualizationUtilities().display_roc_curve(0, train_utils=self)
-                roc_graph.savefig("{}roc_graph_{}_{}".format(media_dir, self.model_name, fold))
+                roc_graph.savefig(roc)
+                self.add_plot_to_md(roc)
             
+                # DISPLAY GRAPHS
                 if show_graphs:
                     results_graph.show()
                     metrics_graph.show()

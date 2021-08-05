@@ -6,7 +6,7 @@ import json
 import os
 import hashlib
 import random
-import pretrainedmodels
+import mdutils
 
 from datetime import datetime
 from PIL import Image
@@ -27,18 +27,46 @@ from tqdm.auto import tqdm
 # from .CustomModels import ResNetWrapper, SqueezeNetWrapper, VGGWrapper, XceptionWrapper
 from .CustomModels import MobileNetV2Wrapper, XceptionWrapper, get_avail_models
   
+  
 ### Helpful functions that can be used throughout ###
 def get_timestamp():
     '''Creates a timestamp, typically useful for generating unique file names for models and images.
-    
     '''
-    
     now = datetime.now()
     timestamp = now.strftime("%d.%m.%Y %H:%M:%S,%f")
     return timestamp
 
 
-def reload_models(model:nn.Module, model_dir:str, folder_name:str, device="cuda:0", debug=False) -> list:
+
+def build(params="parameters.json"):
+    """
+    Creates all of the necessary directories.
+
+    Parameters
+    ----------
+    `params` : `str`\n
+        String representation of the path to the json file containing the necessary parameters, by default `"parameters.json"`
+    """    
+    with open(params, "r") as f:
+        print("Loading parameters...\n")
+        params_ = dict(json.load(f))
+        
+        DATA_DIR = params_["DATA_DIR"]
+        TEST_DIR = params_["TEST_DIR"]
+        MODEL_DIR = params_["MODEL_DIR"]
+        MEDIA_DIR = params_["MEDIA_DIR"]
+        INC_DIR = params_["INC_DIR"]
+          
+    DIRS = [DATA_DIR, TEST_DIR, MODEL_DIR, MEDIA_DIR, INC_DIR]
+    
+    for dirs in DIRS:
+        clear_dirs(dirs)
+        print("Creating:", dirs)
+        os.makedirs(dirs, exist_ok=True)
+       
+
+
+def reload_models(model:nn.Module, model_dir:str, folder_name:str, device="cuda", debug=False) -> list:
     '''Reloads multiple models based on a directory passed through. Useful for quickly loading directories 
     
     Parameters
@@ -50,7 +78,7 @@ def reload_models(model:nn.Module, model_dir:str, folder_name:str, device="cuda:
     `folder_name` : `str`\n
         Name of the folder.
     `device` : `str`, `optional`\n
-        String representation of the GPU core to use or the CPU, by default "cuda:0".
+        String representation of the GPU core to use or the CPU, by default "cuda".
     `debug` : `bool`, `optional`\n
         Boolean indicating whether to print out debugging information or not.
 
@@ -170,7 +198,7 @@ def remove_outliers(data:list, constant=1.5):
     return np.array(data_clean)
 
 
-def time_to_predict(model:nn.Module, loader:DataLoader, constant=1.5, device="cuda:0") -> list:
+def time_to_predict(model:nn.Module, loader:DataLoader, constant=1.5, device="cuda") -> list:
     """
     Calculates the time to predict on a dataset and removes outliers.
 
@@ -183,7 +211,7 @@ def time_to_predict(model:nn.Module, loader:DataLoader, constant=1.5, device="cu
     `constant` : `float`, `optional`\n
         Constant used for determining an outlier using the IQR, by default 1.5.
     `device` : `str`, `optional`\n
-        String representation of the GPU core to use or the CPU, by default "cuda:0".
+        String representation of the GPU core to use or the CPU, by default "cuda".
 
     Returns
     -------
@@ -310,17 +338,17 @@ class CustomDataset(Dataset):
   
 class DataVisualizationUtilities:
     
-    def __init__(self, device="cuda"):
+    def __init__(self, device=""):
         """
         This class serves as a collection of helpful functions when working with `torchvision` and image data in general.
 
         Attributes
         ----------
-        `device` : str, optional\n
-            String representation of the GPU core to use or the CPU, by default "cuda:0".
+        `device` : str\n
+            String representation of the GPU core to use or the CPU
         
         """                
-        self.device = device
+        self.device = device if device else torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     
     def _im_convert(self, tensor, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)) -> np.ndarray:
@@ -369,9 +397,10 @@ class DataVisualizationUtilities:
             ax = fig.add_subplot(2, 10, idx+1, xticks=[], yticks=[])
             plt.imshow(self._im_convert(images[idx], mean=train_utils.mean, std=train_utils.std))
             ax.set_title(train_utils.classes[labels[idx].numpy()])
+
                 
     
-    def display_metric_results(self, fold:int, train_utils, figsize=(7, 7), device="cuda", img_dir="./incorrect_images"):
+    def display_metric_results(self, fold:int, train_utils, figsize=(7, 7), img_dir="./incorrect_images", media_dir="./media"):
         """
         Displays classification report and confusion matrix.
 
@@ -383,17 +412,17 @@ class DataVisualizationUtilities:
             TrainingUtilities instance.
         `figsize` : `tuple`, `optional`\n
             Tuple representing the dimensions of the figure in inches, by default (7, 7).
-        `device` : `str`, `optional`\n
-            String representation of the GPU core to use or the CPU, by default "cuda:0".
         `img_dir` : `str`, `optional`\n
             String representation of the path to the incorrect images directory, by default "./incorrect_images".
+        `media_dir` : `str`\n
+            String representation of the path to the media directory.
             
         """        
         
         with torch.no_grad():
             y_pred, y_true = train_utils.get_predictions(fold, img_dir=img_dir)
             
-        y_true = torch.tensor(y_true).to(device, dtype=torch.long)
+        y_true = torch.tensor(y_true).to(self.device, dtype=torch.long)
         xticks = yticks = train_utils.classes
         
         print("Classification Report\n")
@@ -406,8 +435,8 @@ class DataVisualizationUtilities:
         sns.heatmap(cnf_mat, xticklabels=xticks, yticklabels=yticks, annot=True, cmap="Blues_r")
         plt.ylabel('Ground Truth')
         plt.xlabel('Predictions')
-        plt.title("Confusion Matrix " + train_utils.model_name)
-        plt.show()  
+        return plt
+        
         
         
     def display_results(self, loss:float, acc:float, val_loss:float, val_acc:float, title:str, figsize=(7, 7)):
@@ -450,7 +479,7 @@ class DataVisualizationUtilities:
         plt.ylim([0, y_upper_bound+y_upper_bound*0.2])
         plt.title('Training and Validation Loss '+ title)
         plt.xlabel('epoch')
-        plt.show() 
+        return plt
         
         
     def display_benchmark_results(self, pred_times1, pred_times2, model_name1:str, model_name2:str, figsize=(7, 7), shade=True, 
@@ -491,7 +520,7 @@ class DataVisualizationUtilities:
         plt.xlim([0, x_max+x_max*0.3])
         plt.title(f'Benchmark Results')
         plt.legend(loc="upper right")
-        plt.show()
+        return plt
 
         
     def display_roc_curve(self, fold:int, train_utils, figsize=(7, 7)):
@@ -525,12 +554,13 @@ class DataVisualizationUtilities:
         plt.xlabel("False Positive Rate")
         plt.ylabel("True Positive Rate")
         plt.legend(loc="lower right")
-        plt.show()
+        return plt
+        # plt.show()
 
 
 class TrainingUtilities:
     
-    def __init__(self, data_dir:str, model_dir:str, model_name:str, parameters_path="parameters.json", mode="train"):
+    def __init__(self, data_dir:str, model_dir:str, model_name:str, device="", parameters_path="parameters.json", mode="train"):
         """
         Useful functions for training PyTorch models. Providing a `/path/to/parameters.json` is required to work properly, assumed to be in
         the project directory. Encapsulates all of the hyperparameter tuning into one convenient class to toy with by hand or automate by 
@@ -549,6 +579,8 @@ class TrainingUtilities:
             String representation of the path to the directory of which to save the models.
         `model_name` : `str`\n
             Name of the model.
+        `device` : `str`, `optional`\n
+            String representation of the device to train on, by default ""
         `parameters_path` : `str`, `optional`\n
             String representation of the path to the "parameters.json" file, by default "parameters.json".
         `mode` : `str`, `optional`\n
@@ -558,8 +590,9 @@ class TrainingUtilities:
         self.data_dir = data_dir
         self.model_dir = model_dir
         self.parameters_path = parameters_path
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")      
+        self.device = device if device else torch.device("cuda" if torch.cuda.is_available() else "cpu")     
         self.model = nn.Module().to(device=self.device)
+        self.md_file = mdutils(file_name='media/report.md',title='Results')
         
         # VARIABLE INITIALIZATION
         self.model_name = model_name
@@ -711,9 +744,9 @@ class TrainingUtilities:
             Raised when there is an unrecognized `model_name`.
         """        
         if model_name == "xception":
-            return XceptionWrapper(model_name=model_name, debug=debug)
+            return XceptionWrapper(model_name=model_name, num_classes=len(self.classes), debug=debug)
         elif model_name == "mobilenetv2":
-            return MobileNetV2Wrapper(model_name=model_name, debug=debug)
+            return MobileNetV2Wrapper(model_name=model_name, num_classes=len(self.classes), debug=debug)
         # self.avail_models = get_avail_models()   
         # for i, models in enumerate(self.avail_models[0]):
         #     if self.model_name in models:
@@ -821,7 +854,7 @@ class TrainingUtilities:
         return folds, np.array(X), np.array(y), np.array(ids)
     
     
-    def _loop_fn(self, dataset:Dataset, loader:DataLoader, criterion, optimizer, device="cuda:0", ascii_=False) -> tuple:
+    def _loop_fn(self, dataset:Dataset, loader:DataLoader, criterion, optimizer, ascii_=False) -> tuple:
         """
         The function that actually does the loop for training. Likely isn't used directly, refer to the `train` or `_train` function.
 
@@ -835,8 +868,6 @@ class TrainingUtilities:
             The loss function.
         `optimizer`\n
             The optimization function.
-        `device` : `str`, `optional`\n
-            String representation of the GPU core to use or the CPU, by default "cuda:0".
         `ascii_` : `bool`, `optional`\n
             Boolean representation of the ascii mode, by default False.
 
@@ -853,7 +884,7 @@ class TrainingUtilities:
 
         cost = correct = 0
         for feature, target in tqdm(loader, ascii=ascii_, desc=self.mode.title()):
-            feature, target = feature.to(device, dtype=torch.float32), target.to(device, dtype=torch.long)
+            feature, target = feature.to(self.device, dtype=torch.float32), target.to(self.device, dtype=torch.long)
             output = self.model(feature)
             loss = criterion(output, target)
             self.model.metric = loss
@@ -872,7 +903,7 @@ class TrainingUtilities:
         
     
     @torch.no_grad() # https://deeplizard.com/learn/video/0LhiS6yu2qQ
-    def get_predictions(self, fold, img_dir, device="cuda:0") -> tuple:
+    def get_predictions(self, fold, img_dir) -> tuple:
         """
         Gets all of the predictions. Useful for determining model performance.
 
@@ -882,8 +913,6 @@ class TrainingUtilities:
             Number representing the current fold during k-fold cross validation.
         `img_dir` : `str`\n
             String representation of the path to the incorrect image directory.
-        `device` : `str`, `optional`\n
-            String representation of the GPU core to use or the CPU, by default "cuda:0".
 
         Returns
         -------
@@ -891,15 +920,15 @@ class TrainingUtilities:
             Returns a tuple containing the model predictions and the ground truths.
         """        
         
-        y_pred = torch.tensor([]).to(device, dtype=torch.long)
-        y_true = torch.tensor([]).to(device, dtype=torch.long)
+        y_pred = torch.tensor([]).to(self.device, dtype=torch.long)
+        y_true = torch.tensor([]).to(self.device, dtype=torch.long)
         
         for images, labels in self.loader:
-            images = images.to(device, dtype=torch.float32)
-            labels = labels.to(device, dtype=torch.long)
-            target = labels.to(device, dtype=torch.long).cpu().numpy()[0]
+            images = images.to(self.device, dtype=torch.float32)
+            labels = labels.to(self.device, dtype=torch.long)
+            target = labels.to(self.device, dtype=torch.long).cpu().numpy()[0]
             
-            pred = self.model(images).to(device, dtype=torch.long)
+            pred = self.model(images).to(self.device, dtype=torch.long)
             y_pred = torch.cat((y_pred, pred), dim=0)
             y_true = torch.cat((y_true, labels), dim=0)
             
@@ -913,9 +942,25 @@ class TrainingUtilities:
                     save_image(tensor_img, img_dir+f"/{self.model_name}_fold_{fold}/{hash_}_{labels[idx]}.png")
                                      
         return y_pred, y_true
+            
+            
+    def add_plot_to_md(self, plot_name:str, plot_path:str):
+        """
+        Adds a plot to the report markdown.
+
+        Parameters
+        ----------
+        `plot_name` : `str`\n
+            The name of the plot
+        `plot_path` : `str`\n
+            String representation of the path to the plot image
+        """        
+        _plot_name = plot_name[:4]
+        self.md_file.new_header(level=1, title='{}'._plot_name)
+        self.md_file.new_paragraph("![{}]({})".format(_plot_name, plot_path))
     
     
-    def train(self, model_name:str, model_path:str, inc_path:str, show_graphs=True, dry_run=True, debug=False) -> tuple:
+    def train(self, model_name:str, model_path:str, inc_path:str, media_dir:str, show_graphs=True, dry_run=True, debug=False, max_epoch=1000) -> tuple:
         """
         Wrapper function for the actual training method. Will likely be edited in the future to be more customizable.
 
@@ -927,10 +972,14 @@ class TrainingUtilities:
             String representation of the path to the model checkpoint path.
         `inc_path` : `str`\n
             String representation of the path to the incorrect images path.
+        `media_dir` : `str`\n
+            String representation of the path to the media directory.
         `show_graphs` : `bool`, `optional`\n
             Boolean representing whether or not to display graphs, by default True.
         `dry_run` : `bool`, `optional`\n
             Boolean representing whether we're training to evaluate hyperparameter tuning or training the model for model comparisons, by default True.
+        `max_epoch` : `int`, `optional`\n
+            Integer representing the maximum number of epochs to train the model for, by default 1000.
 
         Returns
         -------
@@ -964,6 +1013,7 @@ class TrainingUtilities:
                 
                 losses.append(loss)
                 accuracies.append(acc)
+                self._set_model(model_name=self.model_name, debug=debug) # creates a new instance of the model
                 
             avg_loss = mean(losses)
             avg_acc = mean(accuracies)
@@ -979,7 +1029,8 @@ class TrainingUtilities:
             criterion = nn.CrossEntropyLoss()
             optimizer = torch.optim.Adam(self.model.parameters(), lr=self.eta)
             lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=self.factor, patience=self.lr_patience, verbose=True)
-            loss, acc = self._train(train_dataset, test_dataset, model_path, criterion, optimizer, fold+1, ascii_=True, scheduler=lr_scheduler, dry_run=dry_run, show_graphs=show_graphs, inc_path=inc_path)
+            loss, acc = self._train(train_dataset, test_dataset, model_path, criterion, optimizer, fold+1, ascii_=True, scheduler=lr_scheduler, dry_run=dry_run, 
+                                    show_graphs=show_graphs, inc_path=inc_path, max_epoch=max_epoch, media_dir=media_dir)
             losses.append(loss)
             accuracies.append(acc)
             
@@ -991,7 +1042,7 @@ class TrainingUtilities:
     
     # https://stackoverflow.com/questions/58996242/cross-validation-for-mnist-dataset-with-pytorch-and-sklearn
     def _train(self, train_dataset:Dataset, test_dataset:Dataset, filepath:str, criterion, optimizer, fold:int, max_epoch=1000, 
-               scheduler=None, shuffle=True, device="cuda", ascii_=False, show_graphs=True, dry_run=False, inc_path="") -> tuple:
+               scheduler=None, shuffle=True, ascii_=False, show_graphs=True, dry_run=False, inc_path="incorrect_images/", media_dir="media/") -> tuple:
         """Does the actual training. Implements early stopping and some debugging.
         """        
         
@@ -1007,10 +1058,10 @@ class TrainingUtilities:
         for e in range(max_epoch):
             print(f'\nEpoch {fold}.{epoch}')
             self.set_mode("train")
-            train_cost, train_score = self._loop_fn(train_dataset, train_loader, criterion, optimizer, device, ascii_=ascii_)
+            train_cost, train_score = self._loop_fn(train_dataset, train_loader, criterion, optimizer, ascii_=ascii_)
             with torch.no_grad():
                 self.set_mode("test")
-                test_cost, test_score = self._loop_fn(test_dataset, test_loader, criterion, optimizer, device, ascii_=ascii_)
+                test_cost, test_score = self._loop_fn(test_dataset, test_loader, criterion, optimizer, ascii_=ascii_)
                 
             if scheduler:
                 scheduler.step(test_cost)
@@ -1025,12 +1076,32 @@ class TrainingUtilities:
             print(f'Early Stopping Patience at: {es_counter}')
                 
             if es_counter == self.patience:
+                self.model.eval()
+                
+                # RESULTS GRAPH
+                results = "{}results_graph_{}_{}".format(media_dir, self.model_name, fold)
+                results_graph = DataVisualizationUtilities().display_results(train_total_loss, train_total_acc, val_total_loss, val_total_acc, 
+                                                                         title=early_stopping.model_name)
+                results_graph.savefig(results)
+                self.add_plot_to_md(results)
+                
+                # METRICS GRAPH
+                metrics = "{}metrics_graph_{}_{}".format(media_dir, self.model_name, fold)
+                metrics_graph = DataVisualizationUtilities().display_metric_results(fold=fold, train_utils=self, img_dir=inc_path)
+                metrics_graph.savefig(metrics)
+                self.add_plot_to_md(metrics)
+                
+                # ROC GRAPH
+                roc = "{}roc_graph_{}_{}".format(media_dir, self.model_name, fold)
+                roc_graph = DataVisualizationUtilities().display_roc_curve(0, train_utils=self)
+                roc_graph.savefig(roc)
+                self.add_plot_to_md(roc)
+            
+                # DISPLAY GRAPHS
                 if show_graphs:
-                    self.model.eval()
-                    DataVisualizationUtilities().display_results(train_total_loss, train_total_acc, val_total_loss, val_total_acc, 
-                                                       title=early_stopping.model_name)
-                    
-                    DataVisualizationUtilities().display_metric_results(fold=fold, train_utils=self, img_dir=inc_path)
+                    results_graph.show()
+                    metrics_graph.show()
+                    roc_graph.show()
                     
                 break
             
