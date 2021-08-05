@@ -428,7 +428,7 @@ class DataVisualizationUtilities:
         print("Classification Report\n")
         clr = classification_report(y_true.cpu(), y_pred.argmax(dim=1).cpu(), target_names=xticks)
         print(clr)
-        train_utils.md_file.new_paragraph(str(clr))
+        train_utils.md_file.insert_code(str(clr))
         print("Confusion Matrix")
         cnf_mat = confusion_matrix(y_true.cpu(), y_pred.argmax(dim=1).cpu())
 
@@ -1084,19 +1084,19 @@ class TrainingUtilities:
                 results = "results_graph_{}_{}".format(self.model_name, fold)
                 results_graph = DataVisualizationUtilities().display_results(train_total_loss, train_total_acc, val_total_loss, val_total_acc, 
                                                                          title=early_stopping.model_name)
-                results_graph.savefig(results)
+                results_graph.savefig(media_dir+"/"+results)
                 self.add_plot_to_md(results, media_dir)
                 
                 # METRICS GRAPH
                 metrics = "metrics_graph_{}_{}".format(self.model_name, fold)
                 metrics_graph = DataVisualizationUtilities().display_metric_results(fold=fold, train_utils=self, img_dir=inc_path)
-                metrics_graph.savefig(metrics)
+                metrics_graph.savefig(media_dir+"/"+metrics)
                 self.add_plot_to_md(metrics, media_dir)
                 
                 # ROC GRAPH
                 roc = "roc_graph_{}_{}".format(self.model_name, fold)
                 roc_graph = DataVisualizationUtilities().display_roc_curve(0, train_utils=self)
-                roc_graph.savefig(roc)
+                roc_graph.savefig(media_dir+"/"+roc)
                 self.add_plot_to_md(roc, media_dir)
             
                 # DISPLAY GRAPHS
