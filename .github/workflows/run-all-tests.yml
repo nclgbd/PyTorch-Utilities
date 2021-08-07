@@ -46,4 +46,4 @@ jobs:
         ls -la
         echo "Printing contents of media/"
         ls -la media/
-        cat media/report.md
+        cat media/report_mobilenetv2.md
