@@ -47,7 +47,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("Using: ", device)
 
 train_utils = TrainingUtilities(data_dir=DATA_DIR, model_dir=MODEL_DIR, device=device, parameters_path=PARAMS, model_name=MODEL_NAME)
-dataviz_utils = DataVisualizationUtilities( )
+dataviz_utils = DataVisualizationUtilities()
 
 
 
