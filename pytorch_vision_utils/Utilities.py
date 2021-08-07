@@ -960,8 +960,8 @@ class TrainingUtilities:
         `plot_path` : `str`\n
             String representation of the path to the plot image
         """        
-        self.md_file.new_line("### {}".format(title))
-        self.md_file.new_paragraph("![{}]({}.png \"{}\")".format(plot_name, plot_path+plot_name, plot_name))
+        self.md_file.new_line("### {}".format(title.title()))
+        self.md_file.new_paragraph("![{}]({}.png \"{}\")".format(plot_name, "./"+plot_name, plot_name))
     
     
     def train(self, model_name:str, model_path:str, inc_path:str, media_dir:str, show_graphs=True, dry_run=True, debug=False, max_epoch=1000) -> tuple:
@@ -1050,8 +1050,8 @@ class TrainingUtilities:
             results = f'Average Loss: {avg_loss:.5f}  |  Average Accuracy: {avg_acc:.5f}'
             print(results)
             
-            self.md_file.new_paragraph(results)
-            self.md_file.new_table_of_contents(table_title='Plots', depth=1)
+            self.md_file.new_paragraph("`{}`".formate(results))
+            # self.md_file.new_table_of_contents(table_title='Plots', depth=1)
             self.md_file.create_md_file()
             return avg_loss, avg_acc
     
