@@ -428,6 +428,7 @@ class DataVisualizationUtilities:
         print("Classification Report\n")
         clr = classification_report(y_true.cpu(), y_pred.argmax(dim=1).cpu(), target_names=xticks)
         print(clr)
+        train_utils.md_file.new_line("### Classification Report [{}]".format(fold))
         train_utils.md_file.insert_code(str(clr))
         print("Confusion Matrix")
         cnf_mat = confusion_matrix(y_true.cpu(), y_pred.argmax(dim=1).cpu())
@@ -595,7 +596,7 @@ class TrainingUtilities:
         self.parameters_path = parameters_path
         self.device = device if device else torch.device("cuda" if torch.cuda.is_available() else "cpu")     
         self.model = nn.Module().to(device=self.device)
-        self.md_file = MdUtils(file_name='media/report.md',title='Results')
+        self.md_file = None
         
         # VARIABLE INITIALIZATION
         self.model_name = model_name
@@ -623,6 +624,7 @@ class TrainingUtilities:
         self.loader = None
         self.mode = mode
         self.avail_models = dict()
+        
         
         
     def set_model_parameters(self,  model_name:str, mode="train", debug=False):
@@ -694,6 +696,9 @@ class TrainingUtilities:
                                         
         self.dataset = CustomDataset(self, mode=self.mode)
         self.loader = self.create_loader(self.dataset, batch_size=self.batch_size, shuffle=True)
+        
+        
+        self.md_file = MdUtils(file_name='media/report_{}.md'.format(self.model_name),title='{} Results'.format(self.model_name.title()))
     
         
     def set_test_transform(self, new_transform:transforms.Compose):
@@ -961,6 +966,7 @@ class TrainingUtilities:
             String representation of the path to the plot image
         """        
         self.md_file.new_line("### {}".format(title.title()))
+        # self.md_file.new_header(level=2, title=title)
         self.md_file.new_paragraph("![{}]({}.png \"{}\")".format(plot_name, "./"+plot_name, plot_name))
     
     
@@ -1025,8 +1031,8 @@ class TrainingUtilities:
             results = f'Average Loss: {avg_loss:.5f}  |  Average Accuracy: {avg_acc:.5f}'
             print(results)
             
-            self.md_file.new_paragraph(results)
-            self.md_file.new_table_of_contents(table_title='Plots', depth=1)
+            self.md_file.new_paragraph("`{}`".format(results))
+            # self.md_file.new_table_of_contents(table_title='Plots', depth=1)
             self.md_file.create_md_file()
             return avg_loss, avg_acc
             
@@ -1050,7 +1056,7 @@ class TrainingUtilities:
             results = f'Average Loss: {avg_loss:.5f}  |  Average Accuracy: {avg_acc:.5f}'
             print(results)
             
-            self.md_file.new_paragraph("`{}`".formate(results))
+            self.md_file.new_paragraph("`{}`".format(results))
             # self.md_file.new_table_of_contents(table_title='Plots', depth=1)
             self.md_file.create_md_file()
             return avg_loss, avg_acc
@@ -1094,28 +1100,26 @@ class TrainingUtilities:
             if es_counter == self.patience:
                 self.model.eval()
                 
-                title = self.model_name
-                
                 # RESULTS GRAPH
                 results = "results_graph_{}_{}".format(self.model_name, fold)
                 results_graph = DataVisualizationUtilities().display_results(train_total_loss, train_total_acc, val_total_loss, val_total_acc, 
                                                                          title=early_stopping.model_name)
                 results_graph.savefig(media_dir+"/"+results)
-                self.add_plot_to_md("{} training results fold {}".format(self.model_name, fold), results, media_dir)
+                self.add_plot_to_md("Training and Validation Results [{}]".format(fold), results, media_dir)
                 
                 
                 # METRICS GRAPH
                 metrics = "metrics_graph_{}_{}".format(self.model_name, fold)
                 metrics_graph = DataVisualizationUtilities().display_metric_results(fold=fold, train_utils=self, img_dir=inc_path)
                 metrics_graph.savefig(media_dir+"/"+metrics)
-                self.add_plot_to_md("{} classification report fold {}".format(self.model_name, fold), metrics, media_dir)
+                self.add_plot_to_md("Confusion Matrix [{}]".format(fold), metrics, media_dir)
                 
                 
                 # ROC GRAPH
                 roc = "roc_graph_{}_{}".format(self.model_name, fold)
                 roc_graph = DataVisualizationUtilities().display_roc_curve(0, train_utils=self)
                 roc_graph.savefig(media_dir+"/"+roc)
-                self.add_plot_to_md("{} roc curve fold {}".format(self.model_name, fold), roc, media_dir)
+                self.add_plot_to_md("ROC Curve [{}]".format(fold), roc, media_dir)
             
             
                 # DISPLAY GRAPHS
