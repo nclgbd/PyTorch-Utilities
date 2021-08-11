@@ -27,7 +27,9 @@ from tqdm.auto import tqdm
 # from .CustomModels import ResNetWrapper, SqueezeNetWrapper, VGGWrapper, XceptionWrapper
 from .CustomModels import MobileNetV2Wrapper, XceptionWrapper, get_avail_models
   
-  
+sns.set_theme()
+
+
 ### Helpful functions that can be used throughout ###
 def get_timestamp():
     '''Creates a timestamp, typically useful for generating unique file names for models and images.
@@ -274,7 +276,7 @@ class CustomDataset(Dataset):
 
         Attributes
         ----------
-        TODO
+        `TODO`
         
         Parameters
         ----------
@@ -348,7 +350,7 @@ class DataVisualizationUtilities:
             String representation of the GPU core to use or the CPU
         
         """                
-        self.device = device if device else torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(device) if device else torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     
     def _im_convert(self, tensor, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)) -> np.ndarray:
@@ -435,7 +437,14 @@ class DataVisualizationUtilities:
 
         # plot
         plt.figure(figsize=figsize)
-        sns.heatmap(cnf_mat, xticklabels=xticks, yticklabels=yticks, annot=True, cmap="Blues_r")
+        sns.heatmap(cnf_mat, 
+                    xticklabels=xticks, 
+                    yticklabels=yticks, 
+                    annot=True, 
+                    cmap="Blues_r", 
+                    fmt=".4g", 
+                    linewidths=1)
+        
         plt.ylabel('Ground Truth')
         plt.xlabel('Predictions')
         return plt
@@ -549,8 +558,7 @@ class DataVisualizationUtilities:
         roc_auc = auc(fpr, tpr)
         
         plt.figure(figsize=figsize)
-        plt.plot(fpr, tpr, linewidth=2, label=train_utils.model_name+f" area: {roc_auc:.4f}", color='blue')
-        # sns.lineplot(fpr, tpr, label=label+" area", color='blue')
+        plt.plot(fpr, tpr, linewidth=2, label=train_utils.model_name + f" area: {roc_auc:.4f}", color='blue')
         plt.plot([0, 1], [0, 1], 'k--')
         plt.axis([0, 1, 0, 1])
         plt.xlim([-0.02, 1.0])
@@ -558,8 +566,8 @@ class DataVisualizationUtilities:
         plt.xlabel("False Positive Rate")
         plt.ylabel("True Positive Rate")
         plt.legend(loc="lower right")
+        
         return plt
-        # plt.show()
 
 
 class TrainingUtilities:
@@ -573,7 +581,7 @@ class TrainingUtilities:
 
         Attributes
         ----------
-        TODO
+        `TODO`
 
         Parameters
         ----------
@@ -594,7 +602,7 @@ class TrainingUtilities:
         self.data_dir = data_dir
         self.model_dir = model_dir
         self.parameters_path = parameters_path
-        self.device = device if device else torch.device("cuda" if torch.cuda.is_available() else "cpu")     
+        self.device = torch.device(device) if device else torch.device("cuda" if torch.cuda.is_available() else "cpu")     
         self.model = nn.Module().to(device=self.device)
         self.md_file = None
         
@@ -952,7 +960,7 @@ class TrainingUtilities:
         return y_pred, y_true
             
             
-    def add_plot_to_md(self, title:str, plot_name:str, plot_path:str):
+    def add_plot_to_md(self, title:str, plot_name:str):
         """
         Adds a plot to the report markdown.
 
@@ -962,11 +970,9 @@ class TrainingUtilities:
             The title for the plot
         `plot_name` : `str`\n
             The name of the plot
-        `plot_path` : `str`\n
-            String representation of the path to the plot image
-        """        
+        """      
+          
         self.md_file.new_line("### {}".format(title.title()))
-        # self.md_file.new_header(level=2, title=title)
         self.md_file.new_paragraph("![{}]({}.png \"{}\")".format(plot_name, "./"+plot_name, plot_name))
     
     
@@ -1105,21 +1111,21 @@ class TrainingUtilities:
                 results_graph = DataVisualizationUtilities().display_results(train_total_loss, train_total_acc, val_total_loss, val_total_acc, 
                                                                          title=early_stopping.model_name)
                 results_graph.savefig(media_dir+"/"+results)
-                self.add_plot_to_md("Training and Validation Results [{}]".format(fold), results, media_dir)
+                self.add_plot_to_md("Training and Validation Results [{}]".format(fold), results)
                 
                 
                 # METRICS GRAPH
                 metrics = "metrics_graph_{}_{}".format(self.model_name, fold)
                 metrics_graph = DataVisualizationUtilities().display_metric_results(fold=fold, train_utils=self, img_dir=inc_path)
                 metrics_graph.savefig(media_dir+"/"+metrics)
-                self.add_plot_to_md("Confusion Matrix [{}]".format(fold), metrics, media_dir)
+                self.add_plot_to_md("Confusion Matrix [{}]".format(fold), metrics)
                 
                 
                 # ROC GRAPH
                 roc = "roc_graph_{}_{}".format(self.model_name, fold)
                 roc_graph = DataVisualizationUtilities().display_roc_curve(0, train_utils=self)
                 roc_graph.savefig(media_dir+"/"+roc)
-                self.add_plot_to_md("ROC Curve [{}]".format(fold), roc, media_dir)
+                self.add_plot_to_md("ROC Curve [{}]".format(fold), roc)
             
             
                 # DISPLAY GRAPHS
@@ -1143,7 +1149,7 @@ class EarlyStopping():
         
         Attributes
         ----------
-        TODO
+        `TODO`
 
         Parameters
         ----------
