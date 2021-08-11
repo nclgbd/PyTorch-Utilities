@@ -679,13 +679,14 @@ class TrainingUtilities:
         self.brightness = settings["BRIGHTNESS"]
         self.monitor = settings["MONITOR"]
         self.min_delta = settings["MIN_DELTA"]
-        self.lr_patience = settings["LR_PATIENCE"]
-        self.factor = settings["FACTOR"]
         self.input_size = settings["INPUT_SIZE"]
         self.mean = settings["MEAN"]
         self.std = settings["STD"]
         self.mode = mode
         
+        if "LR_SCHEDULER" in settings.keys():
+            self.lr_patience = settings["LR_PATIENCE"]
+            self.factor = settings["FACTOR"]
         
         self.model = self._set_model(self.model_name, debug).to(self.device)
             
@@ -975,9 +976,29 @@ class TrainingUtilities:
           
         self.md_file.new_line("### {}".format(title.title()))
         self.md_file.new_paragraph("![{}]({}.png \"{}\")".format(plot_name, "./"+plot_name, plot_name))
+        
+        
+    def _set_params(self, **kwargs={}) -> tuple:
+        if kwargs:
+            for key in kwargs:
+                if key == "criterion":
+                    criterion = kwargs[key]
+                    
+                elif key == "optimizer":
+                    optimizer = kwargs[key]
+                    
+                elif key == "lr_scheduler":
+                    lr_scheduler = kwargs[key]
+        
+        else:
+            criterion = nn.CrossEntropyLoss()
+            optimizer = torch.optim.Adam(self.model.parameters(), lr=self.eta)
+            lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=self.factor, patience=self.lr_patience, verbose=True)
+        
+        return criterion, optimizer, lr_scheduler
     
     
-    def train(self, model_name:str, model_path:str, inc_path:str, media_dir:str, show_graphs=True, dry_run=True, debug=False, max_epoch=1000) -> tuple:
+    def train(self, model_name:str, model_path:str, inc_path:str, media_dir:str, show_graphs=True, dry_run=True, debug=False, max_epoch=1000, **kwargs) -> tuple:
         """
         Wrapper function for the actual training method. Will likely be edited in the future to be more customizable.
 
@@ -997,6 +1018,8 @@ class TrainingUtilities:
             Boolean representing whether we're training to evaluate hyperparameter tuning or training the model for model comparisons, by default True.
         `max_epoch` : `int`, `optional`\n
             Integer representing the maximum number of epochs to train the model for, by default 1000.
+        `kwargs` : `dict`, `optional`\n
+            Dictionary representing additional parameters to pass through. Used for things like optimizers, loss functions, and schedulers
 
         Returns
         -------
@@ -1022,9 +1045,8 @@ class TrainingUtilities:
                 train_dataset.transform = self.train_transform
                 test_dataset.transform = self.test_transform
                 
-                criterion = nn.CrossEntropyLoss()
-                optimizer = torch.optim.Adam(self.model.parameters(), lr=self.eta)
-                lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=self.factor, patience=self.lr_patience, verbose=True)
+                criterion, optimizer, lr_scheduler = self._set_params(kwargs)
+                
                 loss, acc = self._train(train_dataset, test_dataset, model_path, criterion, optimizer, fold+1, ascii_=True, scheduler=lr_scheduler, 
                                         dry_run=dry_run, show_graphs=show_graphs, inc_path=inc_path)
                 
