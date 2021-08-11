@@ -557,6 +557,7 @@ class DataVisualizationUtilities:
         fpr, tpr, thresholds = roc_curve(y_pred, y_true)
         roc_auc = auc(fpr, tpr)
         
+        plt.title('ROC Results for {}'.format(train_utils.model_name.title()))
         plt.figure(figsize=figsize)
         plt.plot(fpr, tpr, linewidth=2, label=train_utils.model_name + f" area: {roc_auc:.4f}", color='blue')
         plt.plot([0, 1], [0, 1], 'k--')
