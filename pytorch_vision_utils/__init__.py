@@ -5,4 +5,4 @@ from . import custom_models
 from . import CustomModels
 from . import Utilities
 
-version='0.3.6'
+version='0.3.7'
