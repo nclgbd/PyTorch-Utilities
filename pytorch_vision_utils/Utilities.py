@@ -6,6 +6,7 @@ import json
 import os
 import hashlib
 import random
+import copy
 
 from mdutils.mdutils import MdUtils
 from datetime import datetime
@@ -686,7 +687,6 @@ class TrainingUtilities:
         self.std = settings["STD"]
         self.mode = mode
         
-        
         self.model = self._set_model(self.model_name, debug).to(self.device)
             
         self.train_transform = transforms.Compose([transforms.Resize(self.input_size),
@@ -705,7 +705,6 @@ class TrainingUtilities:
                                         
         self.dataset = CustomDataset(self, mode=self.mode)
         self.loader = self.create_loader(self.dataset, batch_size=self.batch_size, shuffle=True)
-        
         
         self.md_file = MdUtils(file_name='media/report_{}.md'.format(self.model_name),title='{} Results'.format(self.model_name.title()))
     
@@ -761,9 +760,9 @@ class TrainingUtilities:
             Raised when there is an unrecognized `model_name`.
         """        
         if model_name == "xception":
-            return XceptionWrapper(model_name=model_name, num_classes=len(self.classes), debug=debug)
+            return copy.deepcopy(XceptionWrapper(model_name=model_name, num_classes=len(self.classes), debug=debug))
         elif model_name == "mobilenetv2":
-            return MobileNetV2Wrapper(model_name=model_name, num_classes=len(self.classes), debug=debug)
+            return copy.deepcopy(MobileNetV2Wrapper(model_name=model_name, num_classes=len(self.classes), debug=debug))
         # self.avail_models = get_avail_models()   
         # for i, models in enumerate(self.avail_models[0]):
         #     if self.model_name in models:
@@ -961,7 +960,7 @@ class TrainingUtilities:
         return y_pred, y_true
             
             
-    def add_plot_to_md(self, title:str, plot_name:str):
+    def add_plot_to_md(self, title:str, plot_name:str, extension=".jpg"):
         """
         Adds a plot to the report markdown.
 
@@ -974,7 +973,22 @@ class TrainingUtilities:
         """      
           
         self.md_file.new_line("### {}".format(title.title()))
-        self.md_file.new_paragraph("![{}]({}.png \"{}\")".format(plot_name, "./"+plot_name, plot_name))
+        self.md_file.new_paragraph("![{}]({}{} \"{}\")".format(plot_name, "./"+plot_name, extension, plot_name))
+    
+    
+    def _outer_loop(self, fold:int, model_dir: str, model_path: str, inc_path: str, show_graphs: bool, dry_run: bool) -> tuple:
+        train_idx, test_idx = self.dataset.folds[fold]
+        train_dataset = torch.utils.data.Subset(self.dataset, train_idx)
+        test_dataset = torch.utils.data.Subset(self.dataset, test_idx)
+        
+        train_dataset.transform = self.train_transform
+        test_dataset.transform = self.test_transform
+        
+        criterion = nn.CrossEntropyLoss()
+        optimizer = torch.optim.Adam(self.model.parameters(), lr=self.eta)
+        lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=self.factor, patience=self.lr_patience, verbose=True)
+        return self._train(train_dataset, test_dataset, model_path, criterion, optimizer, fold+1, ascii_=True, scheduler=lr_scheduler, 
+                                dry_run=dry_run, show_graphs=show_graphs, inc_path=inc_path)
     
     
     def train(self, model_name:str, model_path:str, inc_path:str, media_dir:str, show_graphs=True, dry_run=True, debug=False, max_epoch=1000) -> tuple:
@@ -1011,62 +1025,68 @@ class TrainingUtilities:
         losses = []
         accuracies = []
         
+        # `dry_run=True` means that we're doing k-fold cross validation and to not save any of the models
         if dry_run:
             for fold, (train_idx, test_idx) in enumerate(self.dataset.folds):
                 print('\nFold ', fold+1)
-                    
-                train_idx, test_idx = self.dataset.folds[fold]
-                train_dataset = torch.utils.data.Subset(self.dataset, train_idx)
-                test_dataset = torch.utils.data.Subset(self.dataset, test_idx)
-                
-                train_dataset.transform = self.train_transform
-                test_dataset.transform = self.test_transform
-                
-                criterion = nn.CrossEntropyLoss()
-                optimizer = torch.optim.Adam(self.model.parameters(), lr=self.eta)
-                lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=self.factor, patience=self.lr_patience, verbose=True)
-                loss, acc = self._train(train_dataset, test_dataset, model_path, criterion, optimizer, fold+1, ascii_=True, scheduler=lr_scheduler, 
-                                        dry_run=dry_run, show_graphs=show_graphs, inc_path=inc_path)
+                loss, acc = self._outer_loop(fold=fold, model_dir=self.model_dir, model_path=model_path, 
+                                             inc_path=inc_path, show_graphs=show_graphs, dry_run=dry_run)
                 
                 losses.append(loss)
                 accuracies.append(acc)
                 self._set_model(model_name=self.model_name, debug=debug) # creates a new instance of the model
-                
-            avg_loss = mean(losses)
-            avg_acc = mean(accuracies)
-            
-            results = f'Average Loss: {avg_loss:.5f}  |  Average Accuracy: {avg_acc:.5f}'
-            print(results)
-            
-            self.md_file.new_paragraph("`{}`".format(results))
-            # self.md_file.new_table_of_contents(table_title='Plots', depth=1)
-            self.md_file.create_md_file()
-            return avg_loss, avg_acc
-            
+          
+        # `dry_run=False` means we're training this model to actually be used         
         else:
-            
             fold = 0
-            train_idx, test_idx = self.dataset.folds[fold]
-            train_dataset = torch.utils.data.Subset(self.dataset, train_idx)
-            test_dataset = torch.utils.data.Subset(self.dataset, test_idx)
-            criterion = nn.CrossEntropyLoss()
-            optimizer = torch.optim.Adam(self.model.parameters(), lr=self.eta)
-            lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=self.factor, patience=self.lr_patience, verbose=True)
-            loss, acc = self._train(train_dataset, test_dataset, model_path, criterion, optimizer, fold+1, ascii_=True, scheduler=lr_scheduler, dry_run=dry_run, 
-                                    show_graphs=show_graphs, inc_path=inc_path, max_epoch=max_epoch, media_dir=media_dir)
+            loss, acc = self._outer_loop(fold=fold+1, model_dir=self.model_dir, model_path=model_path, 
+                                            inc_path=inc_path, show_graphs=show_graphs, dry_run=dry_run)
+
             losses.append(loss)
             accuracies.append(acc)
             
-            avg_loss = mean(losses)
-            avg_acc = mean(accuracies)
-            
-            results = f'Average Loss: {avg_loss:.5f}  |  Average Accuracy: {avg_acc:.5f}'
-            print(results)
-            
-            self.md_file.new_paragraph("`{}`".format(results))
-            # self.md_file.new_table_of_contents(table_title='Plots', depth=1)
-            self.md_file.create_md_file()
-            return avg_loss, avg_acc
+        avg_loss = mean(losses)
+        avg_acc = mean(accuracies)
+        
+        results = f'Average Loss: {avg_loss:.5f}  |  Average Accuracy: {avg_acc:.5f}'
+        print(results)
+        
+        self.md_file.new_paragraph("`{}`".format(results))
+        self.md_file.create_md_file()
+        return avg_loss, avg_acc
+    
+    
+    def _generate_graphs(self, fold: int, early_stopping, media_dir: str, inc_path: str,
+                        train_total_loss: list, train_total_acc: list, val_total_loss: list,
+                        val_total_acc: list, show_graphs: bool):
+        
+        # RESULTS GRAPH
+        results = "results_graph_{}_{}".format(self.model_name, fold)
+        results_graph = DataVisualizationUtilities().display_results(train_total_loss, train_total_acc, val_total_loss, val_total_acc, 
+                                                                     title=early_stopping.model_name)
+        results_graph.savefig(media_dir+"/"+results+".jpg", dpi=300)
+        self.add_plot_to_md("Training and Validation Results [{}]".format(fold), results)
+        
+        
+        # METRICS GRAPH
+        metrics = "metrics_graph_{}_{}".format(self.model_name, fold)
+        metrics_graph = DataVisualizationUtilities().display_metric_results(fold=fold, train_utils=self, img_dir=inc_path)
+        metrics_graph.savefig(media_dir+"/"+metrics+".jpg", dpi=300)
+        self.add_plot_to_md("Confusion Matrix [{}]".format(fold), metrics)
+        
+        
+        # ROC GRAPH
+        roc = "roc_graph_{}_{}".format(self.model_name, fold)
+        roc_graph = DataVisualizationUtilities().display_roc_curve(0, train_utils=self)
+        roc_graph.savefig(media_dir+"/"+roc+".jpg", dpi=300)
+        self.add_plot_to_md("ROC Curve [{}]".format(fold), roc)
+    
+    
+        # DISPLAY GRAPHS
+        if show_graphs:
+            results_graph.show()
+            metrics_graph.show()
+            roc_graph.show()
     
     
     # https://stackoverflow.com/questions/58996242/cross-validation-for-mnist-dataset-with-pytorch-and-sklearn
@@ -1105,35 +1125,13 @@ class TrainingUtilities:
             print(f'Early Stopping Patience at: {es_counter}')
                 
             if es_counter == self.patience:
+                
                 self.model.eval()
-                
-                # RESULTS GRAPH
-                results = "results_graph_{}_{}".format(self.model_name, fold)
-                results_graph = DataVisualizationUtilities().display_results(train_total_loss, train_total_acc, val_total_loss, val_total_acc, 
-                                                                         title=early_stopping.model_name)
-                results_graph.savefig(media_dir+"/"+results)
-                self.add_plot_to_md("Training and Validation Results [{}]".format(fold), results)
-                
-                
-                # METRICS GRAPH
-                metrics = "metrics_graph_{}_{}".format(self.model_name, fold)
-                metrics_graph = DataVisualizationUtilities().display_metric_results(fold=fold, train_utils=self, img_dir=inc_path)
-                metrics_graph.savefig(media_dir+"/"+metrics)
-                self.add_plot_to_md("Confusion Matrix [{}]".format(fold), metrics)
-                
-                
-                # ROC GRAPH
-                roc = "roc_graph_{}_{}".format(self.model_name, fold)
-                roc_graph = DataVisualizationUtilities().display_roc_curve(0, train_utils=self)
-                roc_graph.savefig(media_dir+"/"+roc)
-                self.add_plot_to_md("ROC Curve [{}]".format(fold), roc)
-            
-            
-                # DISPLAY GRAPHS
-                if show_graphs:
-                    results_graph.show()
-                    metrics_graph.show()
-                    roc_graph.show()
+                self._generate_graphs(fold=fold, early_stopping=early_stopping, 
+                                     media_dir=media_dir, inc_path=inc_path,
+                                     train_total_loss=train_total_loss, train_total_acc=train_total_acc,
+                                     val_total_loss=val_total_loss, val_total_acc=val_total_acc, 
+                                     show_graphs=show_graphs)
                     
                 break
             
@@ -1141,6 +1139,7 @@ class TrainingUtilities:
 
         return early_stopping.min_loss, early_stopping.max_acc
     
+         
                 
 class EarlyStopping():
     
@@ -1170,6 +1169,7 @@ class EarlyStopping():
         self.count = 0
         self.first_run = True
         self.best_model = None
+        
         
     def checkpoint(self, model:nn.Module, epoch:int, loss:float, acc:float, optimizer, dry_run=False) -> int:
         """
