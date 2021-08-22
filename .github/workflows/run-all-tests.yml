@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-and-test-env:
-    # runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
     container: 
       image: ubuntu:latest
     steps:
