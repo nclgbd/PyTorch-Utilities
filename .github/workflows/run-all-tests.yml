@@ -7,13 +7,13 @@ on:
   push:
   pull_request: [master]
 
-jobs:
-  build-and-test-env:
-    runs-on: ubuntu-latest
-    container: 
-      image: ubuntu:latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: iterative/setup-dvc@v1
-    - name: Run build and test scripts
-      run: bash scripts/run-all-tests.sh
+  jobs:
+    build-and-test-env:
+      runs-on: ubuntu-latest
+      container: 
+        image: ubuntu:latest
+      steps:
+      - uses: actions/checkout@v2
+      - uses: iterative/setup-dvc@v1
+      - name: Run build and test scripts
+        run: bash scripts/run-all-tests.sh
