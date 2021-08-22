@@ -60,7 +60,7 @@ dependencies:
   - traitlets=4.3.3
   - typing_extensions=3.7.4.3
   - wcwidth=0.2.5
-  - wheel=0.35.1
+  - wheel
   - xz=5.2.5
   - zeromq=4.3.2
   - zipp=3.4.0
@@ -84,9 +84,10 @@ dependencies:
     - requests==2.24.0
     - scipy==1.5.4
     - seaborn==0.11.0
-    - setuptools==57.0.0
-    - tqdm==4.51.0
-    - urllib3==1.25.11
+    - setuptools
+    - tqdm
+    - twine
+    - urllib3
 prefix: C:\Users\nicol\Anaconda3\envs\torch_base\pytorch_vision_dev
 # conda env update -f conda-envs/pytorch_vision_dev.yml
 # pip install -e .
