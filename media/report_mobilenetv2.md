@@ -47,4 +47,4 @@ weighted avg       0.25      0.50      0.33        20
 
 ![roc_graph_mobilenetv2_2](./roc_graph_mobilenetv2_2.jpg "roc_graph_mobilenetv2_2")
 
-`Average Loss: 0.69771  |  Average Accuracy: 0.50000`
+`Average Loss: 0.69350  |  Average Accuracy: 0.50000`

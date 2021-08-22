@@ -425,7 +425,7 @@ class DataVisualizationUtilities:
         with torch.no_grad():
             y_pred, y_true = train_utils.get_predictions(fold, img_dir=img_dir)
             
-        y_true = torch.tensor(y_true).to(self.device, dtype=torch.long)
+        # y_true = torch.tensor(y_true).to(self.device, dtype=torch.long).clone().detach()
         xticks = yticks = train_utils.classes
         
         print("Classification Report\n")
@@ -553,7 +553,7 @@ class DataVisualizationUtilities:
         
         with torch.no_grad():
             y_pred, y_true = train_utils.get_predictions(fold, img_dir="")
-            y_pred, y_true = y_pred.argmax(dim=1).cpu().numpy(), torch.tensor(y_true).cpu().numpy()
+            y_pred, y_true = y_pred.argmax(dim=1).cpu().clone().detach(), torch.tensor(y_true).cpu().clone().detach()
         
         fpr, tpr, thresholds = roc_curve(y_pred, y_true)
         roc_auc = auc(fpr, tpr)
@@ -760,9 +760,9 @@ class TrainingUtilities:
             Raised when there is an unrecognized `model_name`.
         """        
         if model_name == "xception":
-            return copy.deepcopy(XceptionWrapper(model_name=model_name, num_classes=len(self.classes), debug=debug))
+            return XceptionWrapper(model_name=model_name, num_classes=len(self.classes), debug=debug)
         elif model_name == "mobilenetv2":
-            return copy.deepcopy(MobileNetV2Wrapper(model_name=model_name, num_classes=len(self.classes), debug=debug))
+            return MobileNetV2Wrapper(model_name=model_name, num_classes=len(self.classes), debug=debug)
         # self.avail_models = get_avail_models()   
         # for i, models in enumerate(self.avail_models[0]):
         #     if self.model_name in models:
@@ -952,7 +952,6 @@ class TrainingUtilities:
             for idx, is_correct in enumerate(corrects.cpu().numpy()):
                 if img_dir and not is_correct:
                     tensor_img = transforms.ToTensor()(DataVisualizationUtilities()._im_convert(tensor=images[idx].cpu(), mean=self.mean, std=self.std))
-                    # save_image(tensor_img, img_dir+f"/{self.loader.dataset.selected_item[idx][0]}.png") # should contain the image id (hopefully :)
                     
                     hash_ = hashlib.sha256(get_timestamp().encode('utf-8')).hexdigest()[:5]
                     save_image(tensor_img, img_dir+f"/{self.model_name}_fold_{fold}/{hash_}_{labels[idx]}.png")
@@ -1035,6 +1034,7 @@ class TrainingUtilities:
                 losses.append(loss)
                 accuracies.append(acc)
                 self._set_model(model_name=self.model_name, debug=debug) # creates a new instance of the model
+                self.md_file.new_line()
           
         # `dry_run=False` means we're training this model to actually be used         
         else:
