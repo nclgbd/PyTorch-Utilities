@@ -10,40 +10,30 @@ on:
 jobs:
   build-and-test-env:
     runs-on: ubuntu-latest
+    container: 
+      image: nclgbd:ubuntu
     defaults:
       run:
         shell: bash -l {0}
     steps:
     - uses: actions/checkout@v2
     - uses: iterative/setup-dvc@v1
+    # - name: Conda environment creation and activation
+    #   uses: conda-incubator/setup-miniconda@v2
+    #   with:
+    #     activate-environment: pytorch_vision_dev
+    #     python-version: 3.6
+    #     environment-file: conda-envs/pytorch_vision_dev.yml    # Path to the build conda environment
+    #     auto-update-conda: true
+    #     auto-activate-base: false
+    #     show-channel-urls: true
 
-    - name: Conda environment creation and activation
-      uses: conda-incubator/setup-miniconda@v2
-      with:
-        activate-environment: pytorch_vision_dev
-        python-version: 3.6
-        environment-file: conda-envs/pytorch_vision_dev.yml    # Path to the build conda environment
-        auto-update-conda: true
-        auto-activate-base: false
-        show-channel-urls: true
-
-    - name: Install pip dependencies
-      run: |
-        echo $CONDA/bin >> $GITHUB_PATH
-        conda activate pytorch_vision_dev
-        python -m pip install --upgrade pip
-        pip install pytest
-
+    # - name: Install pip dependencies
+    #   run: |
+    #     echo $CONDA/bin >> $GITHUB_PATH
+    #     conda activate pytorch_vision_dev
+    #     python -m pip install --upgrade pip
+    #     pip install pytest
     - name: Run build and test scripts
-      run: |
-        echo $CONDA/bin >> $GITHUB_PATH
-        conda activate pytorch_vision_dev
-        ls -la
-        pip install -e .
-        mkdir -p media/ incorrect_images/ saved_models/
-        pytest -v -s
-        echo "Printing contents of local dir"
-        ls -la
-        echo "Printing contents of media/"
-        ls -la media/
-        cat media/report_mobilenetv2.md
+      run: bash scripts/run-all-tests.sh
+
