@@ -11,10 +11,10 @@ jobs:
   build-and-test-env:
     runs-on: ubuntu-latest
     container: 
-      image: nclgbd:ubuntu
-    defaults:
-      run:
-        shell: bash -l {0}
+      image: ubuntu:latest
+    # defaults:
+    #   run:
+    #     shell: bash -l {0}
     steps:
     - uses: actions/checkout@v2
     - uses: iterative/setup-dvc@v1
