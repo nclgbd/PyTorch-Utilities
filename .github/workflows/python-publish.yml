@@ -12,6 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     container: 
       image: nclgbd/pytorchdev:0.3.10
+      credentials:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}  
     steps:
     - uses: actions/checkout@v2
     - name: Build and publish
