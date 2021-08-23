@@ -12,7 +12,7 @@ jobs:
   build-and-test-env:
     runs-on: ubuntu-latest
     container: 
-      image: nclgbd/pytorchdev:0.3.9
+      image: nclgbd/pytorchdev:0.3.10
     steps:
     - uses: actions/checkout@v2
     - uses: iterative/setup-dvc@v1
