@@ -1,4 +1,4 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# This workflow will install Python dependencies and run tests
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
 name: Test Build Methods
@@ -12,9 +12,10 @@ jobs:
   build-and-test-env:
     runs-on: ubuntu-latest
     container: 
-      image: ubuntu:latest
+      image: nclgbd/pytorchdev:0.3.9
     steps:
     - uses: actions/checkout@v2
     - uses: iterative/setup-dvc@v1
-    - name: Run build and test scripts
+
+    - name: Run test scripts
       run: bash scripts/run-all-tests.sh

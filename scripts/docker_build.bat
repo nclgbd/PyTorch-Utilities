@@ -1,0 +1,1 @@
+docker build -t nclgbd/pytorchdev:0.3.9 --no-cache .
