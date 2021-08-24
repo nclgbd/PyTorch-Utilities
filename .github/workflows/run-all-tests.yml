@@ -23,4 +23,5 @@ jobs:
       shell: bash -l {0}
       run: |
         ls -a
+        conda activate pytorch_vision_dev
         bash scripts/run-all-tests.sh

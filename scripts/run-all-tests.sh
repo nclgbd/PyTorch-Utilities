@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 pytest -v -s
 echo "Printing contents of local dir"
 ls -la
