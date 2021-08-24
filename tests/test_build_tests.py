@@ -9,6 +9,7 @@ def build_test():
     # Default directory names
     print("Creating folders...")
     cwd = os.getcwd()
+    DATA_DIR = str(os.path.join(cwd, "data"))
     TEST_DIR = str(os.path.join(cwd, "test_data"))
     MODEL_DIR = str(os.path.join(cwd, "saved_models"))
     MEDIA_DIR = str(os.path.join(cwd, 'media'))

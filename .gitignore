@@ -6,3 +6,4 @@ config/
 incorrect_images/
 saved_models/
 media/
+data/
