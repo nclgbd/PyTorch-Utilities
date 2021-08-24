@@ -24,5 +24,6 @@ jobs:
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       
       run: |
+        conda env list
         conda activate pytorch_vision_utils
         bash scripts/python-publish.sh
