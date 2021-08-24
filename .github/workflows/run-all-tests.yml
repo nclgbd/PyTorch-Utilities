@@ -21,5 +21,6 @@ jobs:
     - uses: iterative/setup-dvc@v1
 
     - name: Run test scripts
-      run: conda activate pytorch_vision_utils |
-      bash scripts/run-all-tests.sh
+      run: |
+        conda activate pytorch_vision_utils
+        bash scripts/run-all-tests.sh
