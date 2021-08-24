@@ -9,6 +9,9 @@ apt-get install -y zip unzip
 # Create the environment
 RUN conda env create -f conda-envs/pytorch_vision_dev.yml
 
+# Initialize environment
+RUN conda init bash
+
 # Make RUN commands use the new environment:
 RUN echo "conda activate pytorch_vision_dev" >> ~/.bashrc
 SHELL ["/bin/bash", "--login", "-c"]
