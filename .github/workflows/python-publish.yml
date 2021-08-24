@@ -21,4 +21,5 @@ jobs:
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERS }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      run: bash scripts/python-publish.sh
+      run: conda activate pytorch_vision_utils |
+      bash scripts/python-publish.sh
