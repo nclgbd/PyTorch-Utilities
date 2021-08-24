@@ -15,6 +15,3 @@ SHELL ["/bin/bash", "--login", "-c"]
 
 # Build the repo
 RUN ./scripts/build.sh
-
-# Build repo so we can run tests
-# ENTRYPOINT ["./scripts/build.sh", "./scripts/run-all-tests.sh"]
