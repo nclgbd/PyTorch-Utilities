@@ -17,13 +17,8 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}  
     steps:
     - uses: actions/checkout@v2
-
-    - name: Initialize conda
-      run: |
-        conda init bash
-        exec bash -l
-      
     - name: Build and publish
+      shell: bash -l {0}
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERS }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}

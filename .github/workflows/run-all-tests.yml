@@ -19,12 +19,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: iterative/setup-dvc@v1
-    - name: Build environment
-      run: |
-        conda env list 
-        bash scripts/build.sh
-
     - name: Run test scripts
+      shell: bash -l {0}
       run: |
         conda activate pytorch_vision_utils
         bash scripts/run-all-tests.sh
