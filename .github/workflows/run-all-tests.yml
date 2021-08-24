@@ -20,9 +20,9 @@ jobs:
     - uses: actions/checkout@v2
     - uses: iterative/setup-dvc@v1
 
-    - name: Initialize conda
-      run: conda init bash
-      
+    - name: Build environment
+      run: bash scripts/build.sh
+
     - name: Run test scripts
       run: |
         conda activate pytorch_vision_utils
