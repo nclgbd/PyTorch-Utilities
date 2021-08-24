@@ -1,1 +1,1 @@
-docker run -i -t nclgbd/pytorchdev:0.3.10
+docker run -i -t nclgbd/pytorchdev:0.3.11
