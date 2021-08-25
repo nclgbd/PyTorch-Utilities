@@ -25,5 +25,4 @@ jobs:
       run: |
         ls -a
         conda activate pytorch_vision_dev
-        conda activate pytorch_vision_utils
         bash scripts/python-publish.sh
