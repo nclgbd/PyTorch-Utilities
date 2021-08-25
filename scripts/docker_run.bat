@@ -1,1 +1,1 @@
-docker run -it --rm nclgbd/pytorchdev:0.3.11
+docker run -it --rm nclgbd/pytorchdev:develop

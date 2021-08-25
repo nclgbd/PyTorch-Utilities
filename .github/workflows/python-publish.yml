@@ -11,7 +11,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     container: 
-      image: nclgbd/pytorchdev:0.3.11
+      image: nclgbd/pytorchdev:develop
       credentials:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}  
