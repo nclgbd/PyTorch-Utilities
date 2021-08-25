@@ -22,6 +22,7 @@ jobs:
     - name: Run test scripts
       shell: bash -l {0}
       run: |
+        mkdir -p media/ incorrect_images/ saved_models/ test_data/ data/
         ls -a
         conda activate pytorch_vision_dev
         bash scripts/run-all-tests.sh
