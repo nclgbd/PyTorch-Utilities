@@ -11,19 +11,19 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     container: 
-      image: nclgbd/pytorchdev:0.3.10
+      image: nclgbd/pytorchdev:develop
       credentials:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}  
     steps:
     - uses: actions/checkout@v2
     - name: Build and publish
-      shell: bash -l {0}
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERS }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      
+      shell: bash -l {0}
       run: |
-        conda env list
-        conda activate pytorch_vision_utils
+        mkdir -p media/ incorrect_images/ saved_models/ test_data/ data/
+        ls -a
+        conda activate pytorch_vision_dev
         bash scripts/python-publish.sh

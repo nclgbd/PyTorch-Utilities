@@ -2,9 +2,12 @@ FROM continuumio/miniconda3
 COPY . /workdir
 WORKDIR /workdir
 
-# Run updates
+# Run updates and create necessary folders
 RUN apt-get update && \
 apt-get install -y zip unzip
+
+# Initialize environment
+RUN conda init bash
 
 # Create the environment
 RUN conda env create -f conda-envs/pytorch_vision_dev.yml
@@ -14,7 +17,5 @@ RUN echo "conda activate pytorch_vision_dev" >> ~/.bashrc
 SHELL ["/bin/bash", "--login", "-c"]
 
 # Build the repo
-RUN ./scripts/build.sh
-
-# Build repo so we can run tests
-# ENTRYPOINT ["./scripts/build.sh", "./scripts/run-all-tests.sh"]
+RUN bash scripts/build.sh
+COPY . /workdir

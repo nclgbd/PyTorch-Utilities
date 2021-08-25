@@ -1,8 +1,5 @@
 #!/bin/bash --login
 
-ls -la
-mkdir -p media/ incorrect_images/ saved_models/
-
-conda init bash
+mkdir -p /workdir/media/ /workdir/incorrect_images/ /workdir/saved_models/ /workdir/test_data/ /workdir/data/
 conda activate pytorch_vision_dev
 pip install -e .

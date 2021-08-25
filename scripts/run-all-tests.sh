@@ -1,5 +1,4 @@
-#!/bin/bash
-
+#!/bin/bash --login
 
 pytest -v -s
 echo "Printing contents of local dir"
