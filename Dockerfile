@@ -17,4 +17,4 @@ RUN echo "conda activate pytorch_vision_dev" >> ~/.bashrc
 SHELL ["/bin/bash", "--login", "-c"]
 
 # Build the repo
-RUN ./scripts/build.sh
+RUN bash scripts/build.sh
