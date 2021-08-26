@@ -1064,21 +1064,21 @@ class TrainingUtilities:
         results = "results_graph_{}_{}".format(self.model_name, fold)
         results_graph = DataVisualizationUtilities().display_results(train_total_loss, train_total_acc, val_total_loss, val_total_acc, 
                                                                      title=early_stopping.model_name)
-        results_graph.savefig(media_dir+"/"+results+".jpg", dpi=300)
+        results_graph.savefig(media_dir+results+".jpg", dpi=300)
         self.add_plot_to_md("Training and Validation Results [{}]".format(fold), results)
         
         
         # METRICS GRAPH
         metrics = "metrics_graph_{}_{}".format(self.model_name, fold)
         metrics_graph = DataVisualizationUtilities().display_metric_results(fold=fold, train_utils=self, img_dir=inc_path)
-        metrics_graph.savefig(media_dir+"/"+metrics+".jpg", dpi=300)
+        metrics_graph.savefig(media_dir+metrics+".jpg", dpi=300)
         self.add_plot_to_md("Confusion Matrix [{}]".format(fold), metrics)
         
         
         # ROC GRAPH
         roc = "roc_graph_{}_{}".format(self.model_name, fold)
         roc_graph = DataVisualizationUtilities().display_roc_curve(0, train_utils=self)
-        roc_graph.savefig(media_dir+"/"+roc+".jpg", dpi=300)
+        roc_graph.savefig(media_dir+roc+".jpg", dpi=300)
         self.add_plot_to_md("ROC Curve [{}]".format(fold), roc)
     
     

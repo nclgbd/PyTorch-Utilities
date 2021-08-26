@@ -1,6 +1,4 @@
-
-::conda activate torch_base
+@RD /S /Q ".\dist"
 pip uninstall pytorch_vision_utils -y
-::bumpversion --dry-run --allow-dirty patch
 py -m build
-pip install dist/pytorch_vision_utils-0.3.9.tar.gz
+pip install dist/pytorch_vision_utils-0.3.11.tar.gz

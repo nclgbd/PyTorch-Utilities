@@ -3,7 +3,3 @@ __pycache__/
 .pytest_cache/
 tests/__pycache__
 config/
-incorrect_images/
-saved_models/
-media/
-data/

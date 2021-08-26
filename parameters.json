@@ -5,7 +5,7 @@
     "MEDIA_DIR": "media/",
     "MODEL_DIR": "saved_models/",
     "CLASSES": ["N/A", "TOWAWAY"],
-    "N_SPLITS": 2,
+    "N_SPLITS": 5,
     "mobilenetv2": {
         "BATCH_SIZE": 8,
         "ETA": 0.0001,
