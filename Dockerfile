@@ -18,4 +18,3 @@ SHELL ["/bin/bash", "--login", "-c"]
 
 # Build the repo
 RUN bash scripts/build.sh
-COPY . /workdir
