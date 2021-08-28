@@ -63,8 +63,6 @@ dataviz_utils = DataVisualizationUtilities()
 ##################### T R A I N I N G #####################
 
 if __name__ == "__main__":
-        
     loss, acc = train_utils.train(model_name=MODEL_NAME, model_path=MODEL_DIR, inc_path=INC_DIR, media_dir=MEDIA_DIR, show_graphs=False, dry_run=False, debug=DEBUG)
-    with open(RESULTS_DIR+"/"+MODEL_NAME+".txt", "w+") as f:
-        f.write(f"Loss: {loss}\tAccuracy: {acc}")
+    
 
