@@ -36,12 +36,21 @@ DEBUG = "True" == args["debug"]
 
 
 # DIRECTORY NAMES
-cwd = os.getcwd()
-MODEL_DIR = str(os.path.join(cwd, "saved_models"))
-MEDIA_DIR = str(os.path.join(cwd, 'media'))
-RESULTS_DIR = str(os.path.join(cwd, "model_results"))
-INC_DIR = str(os.path.join(cwd, "incorrect_images"))
-DATA_DIR = str(os.path.join(cwd, "data"))
+with open(PARAMS, "r") as f:
+    print("Loading parameters...\n")
+    params = dict(json.load(f))
+    
+    DATA_DIR = params["DATA_DIR"]
+    TEST_DIR = params["TEST_DIR"]
+    MODEL_DIR = params["MODEL_DIR"]
+    MEDIA_DIR = params["MEDIA_DIR"]
+    INC_DIR = params["INC_DIR"]
+    
+    print("Loading parameters complete!")
+    print(MODEL_DIR)
+    print(TEST_DIR)
+    print(MEDIA_DIR)
+    print(DATA_DIR)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("Using: ", device)
