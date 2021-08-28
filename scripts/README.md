@@ -9,7 +9,7 @@ Here are the details in how to Build and Deploy the changes to PyPl. Note that j
 ## Build Steps
 To build the new docker env and prepare for a new release, follow the steps below:
 1. Save and commit all of your changes.
-2. Run **`scripts\predeploy.bat`**. This will do a bumpversion patch and build the environment, creating the necessary directories for testing. It will then call the **`scripts\build.bat`** script, which will rebuild the binaries for the pip package with the newest patch version.
+2. Run **`scripts\deploy.bat`**. This will do a bumpversion patch and build the environment, creating the necessary directories for testing. It will then call the **`scripts\build.bat`** script, which will rebuild the binaries for the pip package with the newest patch version.
 3. Run **`scripts\docker_build.bat`**. This will build the docker container with the new tags, but it will NOT push it to the repo. That will have to be done after this entire process.
 4. Run **`scripts\docker_run.bat`**. This will run a container using the image we built in the previous step. The interactive shell should start with the environment activated. If it isn't, something went wrong, likely relating back to the `Dockerfile`.
 5. Within the interactive shell, run **`scripts/run_all_tests.sh`**. This will run all of the tests required to make sure the environment actually built properly. If it fails, again something went wrong in the build process and more investigation will be required, as if the tests don't run locally they're not going to pass with the git workflows either.

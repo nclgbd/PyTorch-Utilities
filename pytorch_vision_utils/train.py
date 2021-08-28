@@ -36,12 +36,21 @@ DEBUG = "True" == args["debug"]
 
 
 # DIRECTORY NAMES
-cwd = os.getcwd()
-MODEL_DIR = str(os.path.join(cwd, "saved_models"))
-MEDIA_DIR = str(os.path.join(cwd, 'media'))
-RESULTS_DIR = str(os.path.join(cwd, "model_results"))
-INC_DIR = str(os.path.join(cwd, "incorrect_images"))
-DATA_DIR = str(os.path.join(cwd, "data"))
+with open(PARAMS, "r") as f:
+    print("Loading parameters...\n")
+    params = dict(json.load(f))
+    
+    DATA_DIR = params["DATA_DIR"]
+    TEST_DIR = params["TEST_DIR"]
+    MODEL_DIR = params["MODEL_DIR"]
+    MEDIA_DIR = params["MEDIA_DIR"]
+    INC_DIR = params["INC_DIR"]
+    
+    print("Loading parameters complete!")
+    print(MODEL_DIR)
+    print(TEST_DIR)
+    print(MEDIA_DIR)
+    print(DATA_DIR)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("Using: ", device)
@@ -54,8 +63,6 @@ dataviz_utils = DataVisualizationUtilities()
 ##################### T R A I N I N G #####################
 
 if __name__ == "__main__":
-        
     loss, acc = train_utils.train(model_name=MODEL_NAME, model_path=MODEL_DIR, inc_path=INC_DIR, media_dir=MEDIA_DIR, show_graphs=False, dry_run=False, debug=DEBUG)
-    with open(RESULTS_DIR+"/"+MODEL_NAME+".txt", "w+") as f:
-        f.write(f"Loss: {loss}\tAccuracy: {acc}")
+    
 
