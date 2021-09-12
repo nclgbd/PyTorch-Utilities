@@ -41,7 +41,7 @@ class ResNeXt101_32x4d(nn.Module):
         self.num_classes = num_classes
         self.features = resnext101_32x4d_features
         self.avg_pool = nn.AvgPool2d((7, 7), (1, 1))
-        self.last_linear = nn.Linear(2048, num_classes)
+        self.last_linear = nn.Linear(32768, num_classes)
 
     def logits(self, input):
         x = self.avg_pool(input)

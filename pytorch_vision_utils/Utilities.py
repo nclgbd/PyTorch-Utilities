@@ -26,7 +26,16 @@ from tqdm.auto import tqdm
 
 # from .CustomModels import AlexNetWrapper, DenseNetWrapper, InceptionV3Wrapper, MobileNetV2Wrapper
 # from .CustomModels import ResNetWrapper, SqueezeNetWrapper, VGGWrapper, XceptionWrapper
-from .CustomModels import MobileNetV2Wrapper, XceptionWrapper, get_avail_models
+# from .CustomModels import MobileNetV2Wrapper, XceptionWrapper, get_avail_models
+
+from .CustomModels import avail_models
+
+# from torchvision.models import alexnet
+# from torchvision.models import densenet121, densenet161, densenet169, densenet201
+# from torchvision.models import inception_v3
+# from torchvision.models import resnet18, resnet34, resnet50, resnet101, resnet152
+# from torchvision.models import squeezenet1_0, squeezenet1_1
+# from torchvision.models import vgg11, vgg11_bn, vgg13, vgg13_bn, vgg16, vgg16_bn, vgg19, vgg19_bn
   
 sns.set_theme()
 
@@ -633,7 +642,6 @@ class TrainingUtilities:
         self.dataset = None
         self.loader = None
         self.mode = mode
-        self.avail_models = dict()
         
         
         
@@ -758,22 +766,36 @@ class TrainingUtilities:
         ------
         `ValueError`\n
             Raised when there is an unrecognized `model_name`.
-        """        
-        if model_name == "xception":
-            return XceptionWrapper(model_name=model_name, num_classes=len(self.classes), debug=debug)
-        elif model_name == "mobilenetv2":
-            return MobileNetV2Wrapper(model_name=model_name, num_classes=len(self.classes), debug=debug)
-        # self.avail_models = get_avail_models()   
-        # for i, models in enumerate(self.avail_models[0]):
-        #     if self.model_name in models:
-        #         return self.avail_models[1][i](num_classes=len(self.classes), model_name=self.model_name, debug=debug).to(device=self.device)
+        """     
+        model = avail_models[model_name](num_classes=len(self.classes))
+        if debug:
+            print(model)
+            
+        return model
 
-        raise ValueError("Unrecognized `model_name` param.")
+
+    def reload_weights(self, model_name:str, model_weights_path:str, mode="train", debug=False):
+        """
+        Reloads a model with specific weights. Used for continuing training after some sort of interruption
+
+        Parameters
+        ----------
+        `model_name` : `str`\n
+            Model name.
+        `model_weights_path` : `str`\n
+            String representation to the model weights path.
+        `mode` : `str`, `optional`\n
+            String representation of the new mode, by default "test".
+        """        
+        
+        weights = torch.load(model_weights_path)["model_state_dict"]
+        self.set_model_parameters(model_name, mode=mode, debug=debug)
+        self.model.load_state_dict(weights)
 
 
     def load_weights(self, model_name:str, model_weights_path:str, mode="test", debug=False):
         """
-        Reloads a model with specific weights.
+        Loads a model with specific weights. Used for testing.
 
         Parameters
         ----------
