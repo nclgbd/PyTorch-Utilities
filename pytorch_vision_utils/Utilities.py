@@ -768,24 +768,35 @@ class TrainingUtilities:
         `ValueError`\n
             Raised when there is an unrecognized `model_name`.
         """     
-        return get_avail_models()[model_name](num_classes=len(self.classes))
-        # if model_name == "xception":
-        #     return Xception(num_classes=len(self.classes)).copy()
-        #     # return XceptionWrapper(model_name=model_name, num_classes=len(self.classes), debug=debug)
-        # elif model_name == "mobilenetv2":
-        #     return  MobileNetV2(num_classes=len(self.classes)).copy()
-            # return MobileNetV2Wrapper(model_name=model_name, num_classes=len(self.classes), debug=debug)
-        # self.avail_models = get_avail_models()   
-        # for i, models in enumerate(self.avail_models[0]):
-        #     if self.model_name in models:
-        #         return self.avail_models[1][i](num_classes=len(self.classes), model_name=self.model_name, debug=debug).to(device=self.device)
+        model = get_avail_models()[model_name](num_classes=len(self.classes))
+        if debug:
+            print(model)
+        return model
 
-        raise ValueError("Unrecognized `model_name` param.")
+
+    def reload_weights(self, model_name:str, model_weights_path:str, mode="train", debug=False):
+        """
+        Reloads a model with specific weights. Used for continuing training after some sort of interruption
+
+        Parameters
+        ----------
+        `model_name` : `str`\n
+            Model name.
+        `model_weights_path` : `str`\n
+            String representation to the model weights path.
+        `mode` : `str`, `optional`\n
+            String representation of the new mode, by default "test".
+        """        
+        
+        weights = torch.load(model_weights_path)["model_state_dict"]
+        self.set_model_parameters(model_name, mode=mode, debug=debug)
+            
+        self.model.load_state_dict(weights)
 
 
     def load_weights(self, model_name:str, model_weights_path:str, mode="test", debug=False):
         """
-        Reloads a model with specific weights.
+        Loads a model with specific weights. Used for testing.
 
         Parameters
         ----------

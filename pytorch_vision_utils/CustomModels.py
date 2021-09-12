@@ -5,6 +5,7 @@ from torch import nn
 
 from .custom_models.mobilenetv2 import MobileNetV2
 from .custom_models.resnext import ResNeXt101_32x4d
+from .custom_models.vggm import VGGM
 from .custom_models.xception import Xception
 
 # from torchvision.models import alexnet
@@ -36,6 +37,7 @@ def get_avail_models() -> dict:
                 #    ['vgg11', 'vgg11_bn', 'vgg13', 'vgg13_bn', 'vgg16', 'vgg16_bn', 'vgg19', 'vgg19_bn'], 
                    
                    "resnext101_32x4d",
+                   "vggm",
                    "xception"]
     
    
@@ -48,6 +50,7 @@ def get_avail_models() -> dict:
                     # SqueezeNetWrapper,
                     # VGGWrapper,
                     ResNeXt101_32x4d,
+                    VGGM,
                     Xception]
 
     return dict(zip(model_names, models))
