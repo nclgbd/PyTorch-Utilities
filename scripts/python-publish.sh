@@ -1,3 +1,3 @@
 #!/bin/bash
 python setup.py sdist bdist_wheel
-twine upload dist/pytorch_vision_utils-0.3.13.tar.gz
+twine upload dist/pytorch_vision_utils-0.3.14.tar.gz
