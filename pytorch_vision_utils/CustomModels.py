@@ -3,15 +3,16 @@
 
 from torch import nn
 
-from .custom_models.xception import Xception
 from .custom_models.mobilenetv2 import MobileNetV2
+from .custom_models.resnext import ResNeXt101_32x4d
+from .custom_models.xception import Xception
 
-from torchvision.models import alexnet
-from torchvision.models import densenet121, densenet161, densenet169, densenet201
-from torchvision.models import inception_v3
-from torchvision.models import resnet18, resnet34, resnet50, resnet101, resnet152
-from torchvision.models import squeezenet1_0, squeezenet1_1
-from torchvision.models import vgg11, vgg11_bn, vgg13, vgg13_bn, vgg16, vgg16_bn, vgg19, vgg19_bn
+# from torchvision.models import alexnet
+# from torchvision.models import densenet121, densenet161, densenet169, densenet201
+# from torchvision.models import inception_v3
+# from torchvision.models import resnet18, resnet34, resnet50, resnet101, resnet152
+# from torchvision.models import squeezenet1_0, squeezenet1_1
+# from torchvision.models import vgg11, vgg11_bn, vgg13, vgg13_bn, vgg16, vgg16_bn, vgg19, vgg19_bn
 
 
 
@@ -29,24 +30,27 @@ def get_avail_models() -> dict:
     model_names = [# ["alexnet"], 
     #                ['densenet121', 'densenet161', 'densenet169', 'densenet201'], 
     #                ["inceptionv3"], 
-                   ["mobilenetv2"], 
+                   "mobilenetv2", 
                 #    ['resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152'], 
                 #    ['squeezenet1_0', 'squeezenet1_1'], 
                 #    ['vgg11', 'vgg11_bn', 'vgg13', 'vgg13_bn', 'vgg16', 'vgg16_bn', 'vgg19', 'vgg19_bn'], 
-                   ["xception"]]
+                   
+                   "resnext101_32x4d",
+                   "xception"]
     
    
 
-    model_wrappers = [# AlexNetWrapper, 
+    models = [# AlexNetWrapper, 
     #                 DenseNetWrapper,
     #                 InceptionV3Wrapper,
-                    MobileNetV2Wrapper,
+                    MobileNetV2,
                     # ResNetWrapper,
                     # SqueezeNetWrapper,
                     # VGGWrapper,
-                    XceptionWrapper]
+                    ResNeXt101_32x4d,
+                    Xception]
 
-    return (model_names, model_wrappers)
+    return dict(zip(model_names, models))
 
 
 
@@ -206,45 +210,45 @@ def get_avail_models() -> dict:
       
       
    
-class XceptionWrapper(Xception):
-    def __init__(self, model_name, num_classes=2, debug=False):
-        """ Constructor
-        Args:
-            num_classes: number of classes
-        """
-        Xception.__init__(self, num_classes=num_classes)
+# class XceptionWrapper(Xception):
+#     def __init__(self, model_name, num_classes=2, debug=False):
+#         """ Constructor
+#         Args:
+#             num_classes: number of classes
+#         """
+#         Xception.__init__(self, num_classes=num_classes)
         
-        self.model_name = model_name
-        self.num_classes = num_classes
+#         self.model_name = model_name
+#         self.num_classes = num_classes
         
-        self.last_linear = self.fc
-        del self.fc
+#         self.last_linear = self.fc
+#         del self.fc
         
-        if debug:
-            print(self)
+#         if debug:
+#             print(self)
             
 
 
-class MobileNetV2Wrapper(MobileNetV2):
-    def __init__(self, model_name, num_classes=2, debug=False, input_size=224, width_mult=1.):
-     #     """
-    #     Wrapper around the mobilenetv2 class to change the classifier from 1000 to 2 and adds a debug functionality.
+# class MobileNetV2Wrapper(MobileNetV2):
+#     def __init__(self, model_name, num_classes=2, debug=False, input_size=224, width_mult=1.):
+#      #     """
+#     #     Wrapper around the mobilenetv2 class to change the classifier from 1000 to 2 and adds a debug functionality.
 
-    #     Attributes
-    #     ----------
-    #     `model_name`: `str`\n
-    #         String representation of the model name.
-    #     `num_classes` : `int`, `optional`\n
-    #         The number of classes being predicted on, by default 2.
-    #     `debug` : `bool`, `optional`\n
-    #         Boolean representing whether debug mode is on or off, by default False.
-    #     """  
-        MobileNetV2.__init__(self, num_classes=num_classes)
+#     #     Attributes
+#     #     ----------
+#     #     `model_name`: `str`\n
+#     #         String representation of the model name.
+#     #     `num_classes` : `int`, `optional`\n
+#     #         The number of classes being predicted on, by default 2.
+#     #     `debug` : `bool`, `optional`\n
+#     #         Boolean representing whether debug mode is on or off, by default False.
+#     #     """  
+#         MobileNetV2.__init__(self, num_classes=num_classes)
         
-        self.model_name = model_name
-        self.num_classes = num_classes
-        if debug:
-            print(self)
+#         self.model_name = model_name
+#         self.num_classes = num_classes
+#         if debug:
+#             print(self)
             
 
   

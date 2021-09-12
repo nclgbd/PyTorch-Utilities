@@ -26,7 +26,16 @@ from tqdm.auto import tqdm
 
 # from .CustomModels import AlexNetWrapper, DenseNetWrapper, InceptionV3Wrapper, MobileNetV2Wrapper
 # from .CustomModels import ResNetWrapper, SqueezeNetWrapper, VGGWrapper, XceptionWrapper
-from .CustomModels import MobileNetV2Wrapper, XceptionWrapper, get_avail_models
+# from .CustomModels import MobileNetV2Wrapper, XceptionWrapper, get_avail_models
+
+from .CustomModels import get_avail_models
+
+# from torchvision.models import alexnet
+# from torchvision.models import densenet121, densenet161, densenet169, densenet201
+# from torchvision.models import inception_v3
+# from torchvision.models import resnet18, resnet34, resnet50, resnet101, resnet152
+# from torchvision.models import squeezenet1_0, squeezenet1_1
+# from torchvision.models import vgg11, vgg11_bn, vgg13, vgg13_bn, vgg16, vgg16_bn, vgg19, vgg19_bn
   
 sns.set_theme()
 
@@ -758,11 +767,14 @@ class TrainingUtilities:
         ------
         `ValueError`\n
             Raised when there is an unrecognized `model_name`.
-        """        
-        if model_name == "xception":
-            return XceptionWrapper(model_name=model_name, num_classes=len(self.classes), debug=debug)
-        elif model_name == "mobilenetv2":
-            return MobileNetV2Wrapper(model_name=model_name, num_classes=len(self.classes), debug=debug)
+        """     
+        return get_avail_models()[model_name](num_classes=len(self.classes))
+        # if model_name == "xception":
+        #     return Xception(num_classes=len(self.classes)).copy()
+        #     # return XceptionWrapper(model_name=model_name, num_classes=len(self.classes), debug=debug)
+        # elif model_name == "mobilenetv2":
+        #     return  MobileNetV2(num_classes=len(self.classes)).copy()
+            # return MobileNetV2Wrapper(model_name=model_name, num_classes=len(self.classes), debug=debug)
         # self.avail_models = get_avail_models()   
         # for i, models in enumerate(self.avail_models[0]):
         #     if self.model_name in models:
