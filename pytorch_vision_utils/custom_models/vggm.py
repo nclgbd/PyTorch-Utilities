@@ -87,7 +87,7 @@ class VGGM(nn.Module):
             nn.MaxPool2d((3, 3),(2, 2),(0, 0),ceil_mode=True)
         )
         self.classif = nn.Sequential(
-            nn.Linear(18432,4096),
+            nn.Linear(41472,4096),
             nn.ReLU(),
             nn.Dropout(0.5),
             nn.Linear(4096,4096),

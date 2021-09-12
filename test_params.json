@@ -77,5 +77,23 @@
         "INPUT_SIZE": [299, 299],
         "MEAN": [0.5, 0.5, 0.5],
         "STD": [0.5, 0.5, 0.5]
+    },
+    "inceptionv4": {
+        "BATCH_SIZE": 32,
+        "ETA": 0.0001,
+        "PATIENCE": 7,
+        "CROP_SIZE": 299,
+        "DEGREES": 20,
+        "HUE": 0.3,
+        "BRIGHTNESS":0.2,
+        "SATURATION": 0.2,
+        "CONTRAST": 0.2,
+        "MONITOR": "val_loss",
+        "MIN_DELTA": 0,
+        "LR_PATIENCE": 5,
+        "FACTOR": 0.5,
+        "INPUT_SIZE": [299, 299],
+        "MEAN": [0.5, 0.5, 0.5],
+        "STD": [0.5, 0.5, 0.5]
     }
 }

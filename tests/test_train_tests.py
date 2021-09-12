@@ -98,6 +98,24 @@ def run_resnext101_32x4d_epoch(train_utils):
     return 0 if res else -5
 
 
+def run_inceptionv4_epoch(train_utils):
+    fold = 0
+    train_utils.set_model_parameters(model_name="inceptionv4", debug=True)
+    train_idx, test_idx = train_utils.dataset.folds[fold]
+    train_dataset = torch.utils.data.Subset(train_utils.dataset, train_idx)
+    test_dataset = torch.utils.data.Subset(train_utils.dataset, test_idx)
+    
+    train_dataset.transform = train_utils.train_transform
+    test_dataset.transform = train_utils.test_transform
+    
+    criterion = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(train_utils.model.parameters(), lr=train_utils.eta)
+    lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=train_utils.factor, patience=train_utils.lr_patience, verbose=True)
+    res = train_utils._train(train_dataset, test_dataset, MODEL_DIR, criterion, optimizer, fold+1, ascii_=True, scheduler=lr_scheduler, 
+                            dry_run=False, show_graphs=False, inc_path=INC_DIR, max_epoch=1)
+    return 0 if res else -5
+
+
 def test_run_mobilenetv2_epoch():
     train_utils = TrainingUtilities(data_dir=TEST_DIR, model_dir=MODEL_DIR, model_name="mobilenetv2", 
                                     parameters_path="test_params.json")
@@ -120,4 +138,10 @@ def test_run_resnext101_32x4d_epoch():
     train_utils = TrainingUtilities(data_dir=TEST_DIR, model_dir=MODEL_DIR, model_name="resnext101_32x4d", 
                                     parameters_path="test_params.json")
     assert run_resnext101_32x4d_epoch(train_utils) == 0
+    
+
+def test_run_inceptionv4_epoch():
+    train_utils = TrainingUtilities(data_dir=TEST_DIR, model_dir=MODEL_DIR, model_name="inceptionv4", 
+                                    parameters_path="test_params.json")
+    assert run_inceptionv4_epoch(train_utils) == 0
     

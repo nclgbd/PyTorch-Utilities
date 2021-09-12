@@ -28,7 +28,7 @@ from tqdm.auto import tqdm
 # from .CustomModels import ResNetWrapper, SqueezeNetWrapper, VGGWrapper, XceptionWrapper
 # from .CustomModels import MobileNetV2Wrapper, XceptionWrapper, get_avail_models
 
-from .CustomModels import get_avail_models
+from .CustomModels import avail_models
 
 # from torchvision.models import alexnet
 # from torchvision.models import densenet121, densenet161, densenet169, densenet201
@@ -642,7 +642,6 @@ class TrainingUtilities:
         self.dataset = None
         self.loader = None
         self.mode = mode
-        self.avail_models = dict()
         
         
         
@@ -768,9 +767,10 @@ class TrainingUtilities:
         `ValueError`\n
             Raised when there is an unrecognized `model_name`.
         """     
-        model = get_avail_models()[model_name](num_classes=len(self.classes))
+        model = avail_models[model_name](num_classes=len(self.classes))
         if debug:
             print(model)
+            
         return model
 
 
@@ -790,7 +790,6 @@ class TrainingUtilities:
         
         weights = torch.load(model_weights_path)["model_state_dict"]
         self.set_model_parameters(model_name, mode=mode, debug=debug)
-            
         self.model.load_state_dict(weights)
 
 
