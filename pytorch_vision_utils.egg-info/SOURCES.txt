@@ -28,3 +28,6 @@ pytorch_vision_utils/custom_models/senet.py
 pytorch_vision_utils/custom_models/vggm.py
 pytorch_vision_utils/custom_models/wideresnet.py
 pytorch_vision_utils/custom_models/xception.py
+pytorch_vision_utils/custom_models/resnext_features/__init__.py
+pytorch_vision_utils/custom_models/resnext_features/resnext101_32x4d_features.py
+pytorch_vision_utils/custom_models/resnext_features/resnext101_64x4d_features.py
