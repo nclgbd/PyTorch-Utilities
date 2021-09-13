@@ -645,7 +645,7 @@ class TrainingUtilities:
         
         
         
-    def set_model_parameters(self,  model_name:str, mode="train", debug=False):
+    def set_model_parameters(self, model_name:str, mode="train", debug=False):
         """
         Switches the model parameters based on which model architecture in use and whether we are training
         or testing. 
