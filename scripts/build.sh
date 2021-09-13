@@ -1,5 +1,5 @@
-#!/bin/bash
+#!/bin/bash --login
 
-mkdir -p /workdir/media/ /workdir/incorrect_images/ /workdir/saved_models/ /workdir/test_data/ /workdir/data/
-conda activate pytorch_vision_dev
+mkdir -p ./media/ ./incorrect_images/ ./saved_models/ ./test_data/ ./data/
+# conda activate pytorch_vision_dev
 pip install -e .
