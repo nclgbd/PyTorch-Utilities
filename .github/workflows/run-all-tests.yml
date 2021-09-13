@@ -19,14 +19,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: iterative/setup-dvc@v1
-
-    - name: Build package
-      shell: bash -l {0}
-      run: bash scripts/build.sh
       
-    - name: Run test scripts
+    - name: Build package and run tests
       shell: bash -l {0}
       run: |
-        conda activate pytorch_vision_dev
-        pip install -e .
+        bash scripts/build.sh
         bash scripts/run-all-tests.sh

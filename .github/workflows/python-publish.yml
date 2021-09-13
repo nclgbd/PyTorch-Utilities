@@ -17,17 +17,12 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}  
     steps:
     - uses: actions/checkout@v2
-
-    - name: Build package
-      shell: bash -l {0}
-      run: bash scripts/build.sh
-
-    - name: Publish package
+    
+    - name: Build and publish package
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERS }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       shell: bash -l {0}
       run: |
-        conda activate pytorch_vision_dev
-        pip install -e .
+        bash scripts/build.sh
         bash scripts/python-publish.sh
