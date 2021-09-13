@@ -22,8 +22,6 @@ jobs:
     - name: Build package and run tests
       shell: bash -l {0}
       run: |
-        # mkdir -p ./media/ ./incorrect_images/ ./saved_models/ ./test_data/ ./data/
-        # conda activate pytorch_vision_dev
-        # pip install -e .
+        conda activate pytorch_vision_dev
         bash scripts/build.sh
         bash scripts/run-all-tests.sh
