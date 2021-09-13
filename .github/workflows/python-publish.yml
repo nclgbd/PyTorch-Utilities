@@ -21,7 +21,7 @@ jobs:
     - name: Build package
       shell: bash -l {0}
       run: bash scripts/build.sh
-      
+
     - name: Publish package
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERS }}
@@ -29,4 +29,5 @@ jobs:
       shell: bash -l {0}
       run: |
         conda activate pytorch_vision_dev
+        pip install -e .
         bash scripts/python-publish.sh

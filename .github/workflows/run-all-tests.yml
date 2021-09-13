@@ -28,4 +28,5 @@ jobs:
       shell: bash -l {0}
       run: |
         conda activate pytorch_vision_dev
+        pip install -e .
         bash scripts/run-all-tests.sh
