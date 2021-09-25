@@ -4,9 +4,9 @@
 exit_check() {
     if [ $? -eq 0 ] 
     then 
-        echo "SUCCEED"
+        echo "SUCCEES"
     else 
-        echo "FAILED"
+        echo "FAILURE"
         exit 255
     fi
 }

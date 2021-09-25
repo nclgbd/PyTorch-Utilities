@@ -10,7 +10,7 @@ n_splits: 2
 mobilenetv2:
   batch_size: 8
   eta: 0.0001
-  patience: 2
+  patience: 1
   crop_size: 224
   degrees: 20
   hue: 0.3
@@ -35,7 +35,7 @@ mobilenetv2:
 resnext101_32x4d:
   batch_size: 8
   eta: 0.0001
-  patience: 7
+  patience: 1
   crop_size: 299
   degrees: 20
   hue: 0.3
@@ -60,7 +60,7 @@ resnext101_32x4d:
 vggm:
   batch_size: 8
   eta: 0.0001
-  patience: 7
+  patience: 1
   crop_size: 299
   degrees: 20
   hue: 0.3
@@ -85,7 +85,7 @@ vggm:
 xception:
   batch_size: 8
   eta: 0.0001
-  patience: 7
+  patience: 1
   crop_size: 299
   degrees: 20
   hue: 0.3
@@ -110,7 +110,7 @@ xception:
 inceptionv4:
   batch_size: 8
   eta: 0.0001
-  patience: 7
+  patience: 1
   crop_size: 299
   degrees: 20
   hue: 0.3

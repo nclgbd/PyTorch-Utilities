@@ -195,7 +195,9 @@ def time_to_predict(model:nn.Module, loader:DataLoader, constant=1.5, device="cu
     
     deltas = []
         
-    for images, labels in tqdm(loader, desc="Predicting...".title()):
+    for images, labels in tqdm(loader, 
+                               desc="Predicting...".title()):
+        
         images = images.to(device, dtype=torch.float)
         labels = labels.to(device, dtype=torch.long)
         start = datetime.now()
@@ -601,7 +603,7 @@ class TrainingUtilities:
         
         
         
-    def set_model_parameters(self,  model_name:str, mode="train", debug=False):
+    def set_model_parameters(self, model_name:str, mode="train", debug=False):
         """
         Switches the model parameters based on which model architecture in use and whether we are training
         or testing. 
@@ -860,7 +862,7 @@ class TrainingUtilities:
         return folds, np.array(X), np.array(y), np.array(ids)
     
     
-    def _loop_fn(self, dataset:Dataset, loader:DataLoader, criterion, optimizer, ascii_=False) -> tuple:
+    def _loop_fn(self, dataset:Dataset, loader:DataLoader, criterion, optimizer) -> tuple:
         """
         The function that actually does the loop for training. Likely isn't used directly, refer to the `train` or `_train` function.
 
@@ -874,8 +876,6 @@ class TrainingUtilities:
             The loss function.
         `optimizer`\n
             The optimization function.
-        `ascii_` : `bool`, `optional`\n
-            Boolean representation of the ascii mode, by default False.
 
         Returns
         -------
@@ -889,7 +889,9 @@ class TrainingUtilities:
             self.model.eval()
 
         cost = correct = 0
-        for feature, target in tqdm(loader, ascii=ascii_, desc=self.mode.title()):
+        for feature, target in tqdm(loader, 
+                                    desc=self.mode.title()+"\t"):
+            
             feature, target = feature.to(self.device, dtype=torch.float32), target.to(self.device, dtype=torch.long)
             output = self.model(feature)
             loss = criterion(output, target)
@@ -975,7 +977,7 @@ class TrainingUtilities:
         criterion = nn.CrossEntropyLoss()
         optimizer = torch.optim.Adam(self.model.parameters(), lr=self.eta)
         lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=self.factor, patience=self.lr_patience, verbose=True)
-        return self._train(train_dataset, test_dataset, criterion, optimizer, fold+1, ascii_=True, scheduler=lr_scheduler, 
+        return self._train(train_dataset, test_dataset, criterion, optimizer, fold, scheduler=lr_scheduler, 
                                 dry_run=dry_run, show_graphs=show_graphs)
     
     
@@ -1086,7 +1088,6 @@ class TrainingUtilities:
                max_epoch=1000, 
                scheduler=None, 
                shuffle=True, 
-               ascii_=False, 
                show_graphs=True, 
                dry_run=False) -> tuple:
         """Does the actual training. Implements early stopping and some debugging.
@@ -1104,10 +1105,10 @@ class TrainingUtilities:
         for e in range(max_epoch):
             print(f'\nEpoch {fold}.{epoch}')
             self.set_mode("train")
-            train_cost, train_score = self._loop_fn(train_dataset, train_loader, criterion, optimizer, ascii_=ascii_)
+            train_cost, train_score = self._loop_fn(train_dataset, train_loader, criterion, optimizer)
             with torch.no_grad():
                 self.set_mode("test")
-                test_cost, test_score = self._loop_fn(test_dataset, test_loader, criterion, optimizer, ascii_=ascii_)
+                test_cost, test_score = self._loop_fn(test_dataset, test_loader, criterion, optimizer)
                 
             if scheduler:
                 scheduler.step(test_cost)
