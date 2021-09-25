@@ -7,7 +7,7 @@ with open("README.md", "r") as f:
 print(find_packages())
 setup(
     name="pytorch_vision_utils",
-    version='0.3.15',
+    version='0.4.0',
     author="Nicole Gu",
     author_email="nicoleguob@gmail.com",
     description="PyTorch training and data visualization utilities",
