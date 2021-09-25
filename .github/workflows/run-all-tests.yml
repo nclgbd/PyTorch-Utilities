@@ -42,8 +42,8 @@ jobs:
       run: |
         conda activate pytorch_vision_dev
         bash scripts/build.sh
-
-        bash scripts/test-cmd.sh
+        
+        bash scripts/cmd-tests.sh
         if [ $? -eq 0 ] 
         then 
             echo "SUCCEED"

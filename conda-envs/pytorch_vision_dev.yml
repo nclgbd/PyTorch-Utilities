@@ -16,12 +16,12 @@ dependencies:
   - sqlite
   - torchvision
   - wheel
-  - yaml
   - pip:
     - bumpversion
     - future
     - mdutils
     - pandas
+    - pyyaml
     - prettyprint
     - pytest
     - scipy
