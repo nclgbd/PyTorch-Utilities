@@ -7,7 +7,7 @@ with open("README.md", "r") as f:
 print(find_packages())
 setup(
     name="pytorch_vision_utils",
-    version='0.3.14',
+    version='0.3.15',
     author="Nicole Gu",
     author_email="nicoleguob@gmail.com",
     description="PyTorch training and data visualization utilities",
@@ -15,6 +15,10 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/nclgbd/PyTorch-Utilities",
     packages=find_packages(),
+    entry_points = {
+        'console_scripts': ['train=pytorch_vision_utils.train:main',
+                            'preprocess=pytorch_vision_utils.preprocessing:main'],
+    },
     scripts=["pytorch_vision_utils/train.py", "pytorch_vision_utils/preprocessing.py"],
     classifiers=[
         "Programming Language :: Python :: 3",

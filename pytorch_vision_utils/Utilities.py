@@ -2,15 +2,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import torch
-import json
+import yaml
 import os
 import hashlib
 import random
-import copy
 
 from mdutils.mdutils import MdUtils
 from datetime import datetime
 from PIL import Image
+from pprint import pprint
 from statistics import mean
 
 from sklearn.metrics import confusion_matrix, classification_report, roc_curve, auc
@@ -24,18 +24,7 @@ from torchvision.utils import save_image
 from torch.utils.data import DataLoader, Dataset
 from tqdm.auto import tqdm
 
-# from .CustomModels import AlexNetWrapper, DenseNetWrapper, InceptionV3Wrapper, MobileNetV2Wrapper
-# from .CustomModels import ResNetWrapper, SqueezeNetWrapper, VGGWrapper, XceptionWrapper
-# from .CustomModels import MobileNetV2Wrapper, XceptionWrapper, get_avail_models
-
 from .CustomModels import avail_models
-
-# from torchvision.models import alexnet
-# from torchvision.models import densenet121, densenet161, densenet169, densenet201
-# from torchvision.models import inception_v3
-# from torchvision.models import resnet18, resnet34, resnet50, resnet101, resnet152
-# from torchvision.models import squeezenet1_0, squeezenet1_1
-# from torchvision.models import vgg11, vgg11_bn, vgg13, vgg13_bn, vgg16, vgg16_bn, vgg19, vgg19_bn
   
 sns.set_theme()
 
@@ -48,34 +37,6 @@ def get_timestamp():
     timestamp = now.strftime("%d.%m.%Y %H:%M:%S,%f")
     return timestamp
 
-
-
-def build(params="parameters.json"):
-    """
-    Creates all of the necessary directories.
-
-    Parameters
-    ----------
-    `params` : `str`\n
-        String representation of the path to the json file containing the necessary parameters, by default `"parameters.json"`
-    """    
-    with open(params, "r") as f:
-        print("Loading parameters...\n")
-        params_ = dict(json.load(f))
-        
-        DATA_DIR = params_["DATA_DIR"]
-        TEST_DIR = params_["TEST_DIR"]
-        MODEL_DIR = params_["MODEL_DIR"]
-        MEDIA_DIR = params_["MEDIA_DIR"]
-        INC_DIR = params_["INC_DIR"]
-          
-    DIRS = [DATA_DIR, TEST_DIR, MODEL_DIR, MEDIA_DIR, INC_DIR]
-    
-    for dirs in DIRS:
-        clear_dirs(dirs)
-        print("Creating:", dirs)
-        os.makedirs(dirs, exist_ok=True)
-       
 
 
 def reload_models(model:nn.Module, model_dir:str, folder_name:str, device="cuda", debug=False) -> list:
@@ -115,7 +76,8 @@ def reload_models(model:nn.Module, model_dir:str, folder_name:str, device="cuda"
                 print(f'Reading {f}')
                 
             model = model.to(device)
-            model.load_state_dict(state_dict=torch.load(subdir+'/'+f)['model_state_dict'])
+            weights = os.path.join(subdir, f)
+            model.load_state_dict(state_dict=torch.load(weights)['model_state_dict'])
             model.eval()
             models.append(model)
 
@@ -139,7 +101,8 @@ def clear_dirs(dir:str):
             continue
         
         for f in files:
-            os.remove(subdir+"/"+f)
+            remove_path = os.path.join(subdir, f)
+            os.remove(remove_path)
             
 
 def create_fold_dirs(target_dir:str, dir_names:list):
@@ -155,10 +118,9 @@ def create_fold_dirs(target_dir:str, dir_names:list):
     '''
     
     for d in dir_names:
-        try:
-            os.makedirs(target_dir+'/'+d)
-        except FileExistsError:
-            continue
+        dirs = os.path.join(target_dir, d)
+        os.makedirs(dirs, exist_ok=True)
+
     
         
 def create_fold_names(model_name:str, n_splits=5) -> list:
@@ -178,7 +140,7 @@ def create_fold_names(model_name:str, n_splits=5) -> list:
         Returns a list of all the folder names.
     """    
     
-    return [f"{model_name}_fold_{idx}" for idx in range(1, n_splits+1)]
+    return [f"{model_name}_fold_{idx}" for idx in range(n_splits+1)]
 
             
 def remove_outliers(data:list, constant=1.5):
@@ -412,7 +374,7 @@ class DataVisualizationUtilities:
 
                 
     
-    def display_metric_results(self, fold:int, train_utils, figsize=(7, 7), img_dir="./incorrect_images", media_dir="./media"):
+    def display_metric_results(self, fold:int, train_utils, figsize=(7, 7)):
         """
         Displays classification report and confusion matrix.
 
@@ -423,16 +385,11 @@ class DataVisualizationUtilities:
         `train_utils`\n
             TrainingUtilities instance.
         `figsize` : `tuple`, `optional`\n
-            Tuple representing the dimensions of the figure in inches, by default (7, 7).
-        `img_dir` : `str`, `optional`\n
-            String representation of the path to the incorrect images directory, by default "./incorrect_images".
-        `media_dir` : `str`\n
-            String representation of the path to the media directory.
-            
+            Tuple representing the dimensions of the figure in inches, by default (7, 7).  
         """        
         
         with torch.no_grad():
-            y_pred, y_true = train_utils.get_predictions(fold, img_dir=img_dir)
+            y_pred, y_true = train_utils.get_predictions(fold)
             
         # y_true = torch.tensor(y_true).to(self.device, dtype=torch.long).clone().detach()
         xticks = yticks = train_utils.classes
@@ -561,7 +518,7 @@ class DataVisualizationUtilities:
         """        
         
         with torch.no_grad():
-            y_pred, y_true = train_utils.get_predictions(fold, img_dir="")
+            y_pred, y_true = train_utils.get_predictions(fold)
             y_pred, y_true = y_pred.argmax(dim=1).cpu().clone().detach(), torch.tensor(y_true).cpu().clone().detach()
         
         fpr, tpr, thresholds = roc_curve(y_pred, y_true)
@@ -583,11 +540,11 @@ class DataVisualizationUtilities:
 
 class TrainingUtilities:
     
-    def __init__(self, data_dir:str, model_dir:str, model_name:str, device="", parameters_path="parameters.json", mode="train"):
+    def __init__(self, model_name:str, parameters_path="parameters.yml", mode="train", device=""):
         """
-        Useful functions for training PyTorch models. Providing a `/path/to/parameters.json` is required to work properly, assumed to be in
+        Useful functions for training PyTorch models. Providing a `/path/to/parameters.yml` is required to work properly, assumed to be in
         the project directory. Encapsulates all of the hyperparameter tuning into one convenient class to toy with by hand or automate by 
-        creating json file.\n
+        creating yml file.\n
         CAUTION: Currently in flux constantly, check back often for any documentation updates.
 
         Attributes
@@ -596,29 +553,28 @@ class TrainingUtilities:
 
         Parameters
         ----------
-        `data_dir` : `str`\n
-            String representation of the path to the directory containing the classes.
-        `model_dir` : `str`\n
-            String representation of the path to the directory of which to save the models.
         `model_name` : `str`\n
             Name of the model.
         `device` : `str`, `optional`\n
             String representation of the device to train on, by default ""
         `parameters_path` : `str`, `optional`\n
-            String representation of the path to the "parameters.json" file, by default "parameters.json".
+            String representation of the path to the "parameters.yml" file, by default "parameters.yml".
         `mode` : `str`, `optional`\n
             String representation of the mode of training, by default "train"
         """  
         
-        self.data_dir = data_dir
-        self.model_dir = model_dir
+        self.model_name = model_name
         self.parameters_path = parameters_path
         self.device = torch.device(device) if device else torch.device("cuda" if torch.cuda.is_available() else "cpu")     
         self.model = nn.Module().to(device=self.device)
         self.md_file = None
         
         # VARIABLE INITIALIZATION
-        self.model_name = model_name
+        self.data_dir = ""
+        self.test_dir = ""
+        self.model_dir = ""
+        self.media_dir = ""
+        self.inc_dir = ""
         self.classes = []
         self.batch_size = 0
         self.eta = 0
@@ -668,31 +624,40 @@ class TrainingUtilities:
             return    
         
         with open(self.parameters_path, "r") as f:
-            json_file = json.load(f)
-            self.classes = json_file["CLASSES"]
-            self.n_splits = json_file["N_SPLITS"]
-            settings = json_file[model_name]
+            yml_file = yaml.load(f, Loader=yaml.FullLoader)
             
-        print(settings)
+            self.classes = yml_file["classes"]
+            self.n_splits = yml_file["n_splits"]
+            
+            self.data_dir = yml_file["data_dir"]
+            self.test_dir = yml_file["test_dir"]
+            self.model_dir = yml_file["model_dir"]
+            self.media_dir = yml_file["media_dir"]
+            self.inc_dir = yml_file["inc_dir"]
+            
+            settings = yml_file[model_name]
+           
+        if debug: 
+            pprint(settings)
 
         # HYPERPARAMETERS
         self.model_name = model_name
-        self.batch_size = settings["BATCH_SIZE"]
-        self.eta = settings["ETA"]
-        self.patience = settings["PATIENCE"]
-        self.crop_size = settings["CROP_SIZE"]
-        self.degrees = settings["DEGREES"]
-        self.hue = settings["HUE"]
-        self.saturation = settings["SATURATION"]
-        self.contrast = settings["CONTRAST"]
-        self.brightness = settings["BRIGHTNESS"]
-        self.monitor = settings["MONITOR"]
-        self.min_delta = settings["MIN_DELTA"]
-        self.lr_patience = settings["LR_PATIENCE"]
-        self.factor = settings["FACTOR"]
-        self.input_size = settings["INPUT_SIZE"]
-        self.mean = settings["MEAN"]
-        self.std = settings["STD"]
+        self.batch_size = settings["batch_size"]
+        self.eta = settings["eta"]
+        self.patience = settings["patience"]
+        self.crop_size = settings["crop_size"]
+        self.degrees = settings["degrees"]
+        self.hue = settings["hue"]
+        self.saturation = settings["saturation"]
+        self.contrast = settings["contrast"]
+        self.brightness = settings["brightness"]
+        self.monitor = settings["monitor"]
+        self.min_delta = settings["min_delta"]
+        self.lr_patience = settings["lr_patience"]
+        self.factor = settings["factor"]
+        self.input_size = settings["input_size"]
+        self.mean = settings["mean"]
+        self.std = settings["std"]
         self.mode = mode
         
         self.model = self._set_model(self.model_name, debug).to(self.device)
@@ -714,7 +679,9 @@ class TrainingUtilities:
         self.dataset = CustomDataset(self, mode=self.mode)
         self.loader = self.create_loader(self.dataset, batch_size=self.batch_size, shuffle=True)
         
-        self.md_file = MdUtils(file_name='media/report_{}.md'.format(self.model_name),title='{} Results'.format(self.model_name.title()))
+        report_path = "report_{}.md".format(self.model_name)
+        media_path = os.path.join(self.media_dir, report_path)
+        self.md_file = MdUtils(file_name=media_path, title='{} Results'.format(self.model_name.title()))
     
         
     def set_test_transform(self, new_transform:transforms.Compose):
@@ -880,7 +847,8 @@ class TrainingUtilities:
             print(f'Creating {subdir}...')
             for f in files:
                 ids.append(f"{i-1}_{files[:-4]}")
-                img = Image.open(subdir+'/'+f)
+                img_path = os.path.join(subdir, f)
+                img = Image.open(img_path)
                 img = img.resize(size=self.input_size)
                 img = img.convert('RGB')
                 img = np.asarray(img)
@@ -941,7 +909,7 @@ class TrainingUtilities:
         
     
     @torch.no_grad() # https://deeplizard.com/learn/video/0LhiS6yu2qQ
-    def get_predictions(self, fold, img_dir) -> tuple:
+    def get_predictions(self, fold) -> tuple:
         """
         Gets all of the predictions. Useful for determining model performance.
 
@@ -949,8 +917,6 @@ class TrainingUtilities:
         ----------
         `fold` : int\n
             Number representing the current fold during k-fold cross validation.
-        `img_dir` : `str`\n
-            String representation of the path to the incorrect image directory.
 
         Returns
         -------
@@ -972,11 +938,12 @@ class TrainingUtilities:
             
             corrects = (labels == pred.argmax(1))
             for idx, is_correct in enumerate(corrects.cpu().numpy()):
-                if img_dir and not is_correct:
+                if self.inc_dir and not is_correct:
                     tensor_img = transforms.ToTensor()(DataVisualizationUtilities()._im_convert(tensor=images[idx].cpu(), mean=self.mean, std=self.std))
                     
                     hash_ = hashlib.sha256(get_timestamp().encode('utf-8')).hexdigest()[:5]
-                    save_image(tensor_img, img_dir+f"/{self.model_name}_fold_{fold}/{hash_}_{labels[idx]}.png")
+                    img_path = os.path.join(self.inc_dir, f"{self.model_name}_fold_{fold}", f"{hash_}_{labels[idx]}.png")
+                    save_image(tensor_img, img_path)
                                      
         return y_pred, y_true
             
@@ -997,7 +964,7 @@ class TrainingUtilities:
         self.md_file.new_paragraph("![{}]({}{} \"{}\")".format(plot_name, "./"+plot_name, extension, plot_name))
     
     
-    def _outer_loop(self, fold:int, model_dir: str, model_path: str, inc_path: str, show_graphs: bool, dry_run: bool) -> tuple:
+    def _outer_loop(self, fold:int, show_graphs: bool, dry_run: bool) -> tuple:
         train_idx, test_idx = self.dataset.folds[fold]
         train_dataset = torch.utils.data.Subset(self.dataset, train_idx)
         test_dataset = torch.utils.data.Subset(self.dataset, test_idx)
@@ -1008,11 +975,15 @@ class TrainingUtilities:
         criterion = nn.CrossEntropyLoss()
         optimizer = torch.optim.Adam(self.model.parameters(), lr=self.eta)
         lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=self.factor, patience=self.lr_patience, verbose=True)
-        return self._train(train_dataset, test_dataset, model_path, criterion, optimizer, fold+1, ascii_=True, scheduler=lr_scheduler, 
-                                dry_run=dry_run, show_graphs=show_graphs, inc_path=inc_path)
+        return self._train(train_dataset, test_dataset, criterion, optimizer, fold+1, ascii_=True, scheduler=lr_scheduler, 
+                                dry_run=dry_run, show_graphs=show_graphs)
     
     
-    def train(self, model_name:str, model_path:str, inc_path:str, media_dir:str, show_graphs=True, dry_run=True, debug=False, max_epoch=1000) -> tuple:
+    def train(self, model_name:str, 
+              show_graphs=True, 
+              dry_run=True, 
+              debug=False, 
+              max_epoch=1000) -> tuple:
         """
         Wrapper function for the actual training method. Will likely be edited in the future to be more customizable.
 
@@ -1020,12 +991,6 @@ class TrainingUtilities:
         ----------
         `model_name` : `str`\n
             Model name.
-        `model_path` : `str`\n
-            String representation of the path to the model checkpoint path.
-        `inc_path` : `str`\n
-            String representation of the path to the incorrect images path.
-        `media_dir` : `str`\n
-            String representation of the path to the media directory.
         `show_graphs` : `bool`, `optional`\n
             Boolean representing whether or not to display graphs, by default True.
         `dry_run` : `bool`, `optional`\n
@@ -1042,7 +1007,7 @@ class TrainingUtilities:
         self.set_model_parameters(model_name=model_name, debug=debug)
         
         dir_names = create_fold_names(self.model_name, n_splits=self.n_splits)
-        create_fold_dirs(inc_path, dir_names)
+        create_fold_dirs(self.inc_dir, dir_names)
         losses = []
         accuracies = []
         
@@ -1050,8 +1015,7 @@ class TrainingUtilities:
         if dry_run:
             for fold, (train_idx, test_idx) in enumerate(self.dataset.folds):
                 print('\nFold ', fold+1)
-                loss, acc = self._outer_loop(fold=fold, model_dir=self.model_dir, model_path=model_path, 
-                                             inc_path=inc_path, show_graphs=show_graphs, dry_run=dry_run)
+                loss, acc = self._outer_loop(fold=fold, show_graphs=show_graphs, dry_run=dry_run)
                 
                 losses.append(loss)
                 accuracies.append(acc)
@@ -1061,8 +1025,7 @@ class TrainingUtilities:
         # `dry_run=False` means we're training this model to actually be used         
         else:
             fold = 0
-            loss, acc = self._outer_loop(fold=fold+1, model_dir=self.model_dir, model_path=model_path, 
-                                            inc_path=inc_path, show_graphs=show_graphs, dry_run=dry_run)
+            loss, acc = self._outer_loop(fold=fold+1, show_graphs=show_graphs, dry_run=dry_run)
 
             losses.append(loss)
             accuracies.append(acc)
@@ -1078,7 +1041,7 @@ class TrainingUtilities:
         return avg_loss, avg_acc
     
     
-    def _generate_graphs(self, fold: int, early_stopping, media_dir: str, inc_path: str,
+    def _generate_graphs(self, fold: int, early_stopping, 
                         train_total_loss: list, train_total_acc: list, val_total_loss: list,
                         val_total_acc: list, show_graphs: bool):
         
@@ -1086,21 +1049,24 @@ class TrainingUtilities:
         results = "results_graph_{}_{}".format(self.model_name, fold)
         results_graph = DataVisualizationUtilities().display_results(train_total_loss, train_total_acc, val_total_loss, val_total_acc, 
                                                                      title=early_stopping.model_name)
-        results_graph.savefig(media_dir+results+".jpg", dpi=300)
+        results_path = os.path.join(self.media_dir, results+".jpg")
+        results_graph.savefig(results_path, dpi=300)
         self.add_plot_to_md("Training and Validation Results [{}]".format(fold), results)
         
         
         # METRICS GRAPH
         metrics = "metrics_graph_{}_{}".format(self.model_name, fold)
-        metrics_graph = DataVisualizationUtilities().display_metric_results(fold=fold, train_utils=self, img_dir=inc_path)
-        metrics_graph.savefig(media_dir+metrics+".jpg", dpi=300)
+        metrics_graph = DataVisualizationUtilities().display_metric_results(fold=fold, train_utils=self)
+        metrics_path = os.path.join(self.media_dir, metrics+".jpg")
+        metrics_graph.savefig(metrics_path, dpi=300)
         self.add_plot_to_md("Confusion Matrix [{}]".format(fold), metrics)
         
         
         # ROC GRAPH
         roc = "roc_graph_{}_{}".format(self.model_name, fold)
         roc_graph = DataVisualizationUtilities().display_roc_curve(0, train_utils=self)
-        roc_graph.savefig(media_dir+roc+".jpg", dpi=300)
+        roc_path = os.path.join(self.media_dir, roc+".jpg")
+        roc_graph.savefig(roc_path, dpi=300)
         self.add_plot_to_md("ROC Curve [{}]".format(fold), roc)
     
     
@@ -1112,12 +1078,21 @@ class TrainingUtilities:
     
     
     # https://stackoverflow.com/questions/58996242/cross-validation-for-mnist-dataset-with-pytorch-and-sklearn
-    def _train(self, train_dataset:Dataset, test_dataset:Dataset, filepath:str, criterion, optimizer, fold:int, max_epoch=1000, 
-               scheduler=None, shuffle=True, ascii_=False, show_graphs=True, dry_run=False, inc_path="incorrect_images/", media_dir="media/") -> tuple:
+    def _train(self, train_dataset:Dataset, 
+               test_dataset:Dataset, 
+               criterion, 
+               optimizer, 
+               fold:int, 
+               max_epoch=1000, 
+               scheduler=None, 
+               shuffle=True, 
+               ascii_=False, 
+               show_graphs=True, 
+               dry_run=False) -> tuple:
         """Does the actual training. Implements early stopping and some debugging.
         """        
         
-        early_stopping = EarlyStopping(model_path=filepath, model_name=self.model_name, fold=fold, min_delta=self.min_delta)
+        early_stopping = EarlyStopping(model_dir=self.model_dir, model_name=self.model_name, fold=fold, min_delta=self.min_delta)
         train_total_loss = []
         train_total_acc = []
         val_total_loss = []
@@ -1149,8 +1124,7 @@ class TrainingUtilities:
             if es_counter == self.patience:
                 
                 self.model.eval()
-                self._generate_graphs(fold=fold, early_stopping=early_stopping, 
-                                     media_dir=media_dir, inc_path=inc_path,
+                self._generate_graphs(fold=fold, early_stopping=early_stopping,
                                      train_total_loss=train_total_loss, train_total_acc=train_total_acc,
                                      val_total_loss=val_total_loss, val_total_acc=val_total_acc, 
                                      show_graphs=show_graphs)
@@ -1165,7 +1139,10 @@ class TrainingUtilities:
                 
 class EarlyStopping():
     
-    def __init__(self, model_path:str, model_name:str, fold:int, min_delta=0):
+    def __init__(self, 
+                 model_dir:str, 
+                 model_name:str, 
+                 fold:int, min_delta=0):
         """
         Class for early stopping, because only plebs rely on set amounts of epochs.
         
@@ -1187,7 +1164,7 @@ class EarlyStopping():
         self.max_acc = -float('inf')
         self.min_delta = min_delta
         self.model_name = model_name 
-        self.path = str(os.path.join(model_path, self.model_name+'.pth'))
+        self.path = str(os.path.join(model_dir, self.model_name+'.pth'))
         self.count = 0
         self.first_run = True
         self.best_model = None

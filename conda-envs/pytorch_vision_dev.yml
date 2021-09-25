@@ -16,11 +16,13 @@ dependencies:
   - sqlite
   - torchvision
   - wheel
+  - yaml
   - pip:
     - bumpversion
     - future
     - mdutils
     - pandas
+    - prettyprint
     - pytest
     - scipy
     - seaborn

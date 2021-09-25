@@ -18,11 +18,37 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}       
     steps:
     - uses: actions/checkout@v2
-    - uses: iterative/setup-dvc@v1
-    - name: Run test scripts
+      
+    - name: Build package and run tests
       shell: bash -l {0}
       run: |
-        mkdir -p media/ incorrect_images/ saved_models/ test_data/ data/
-        ls -a
         conda activate pytorch_vision_dev
+        bash scripts/build.sh
         bash scripts/run-all-tests.sh
+
+
+  build-and-test-cmd:
+    runs-on: ubuntu-latest
+    container: 
+      image: nclgbd/pytorchdev:develop
+      credentials:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}       
+    steps:
+    - uses: actions/checkout@v2 
+
+    - name: Build package and run tests
+      shell: bash -l {0}
+      run: |
+        conda activate pytorch_vision_dev
+        bash scripts/build.sh
+
+        bash scripts/test-cmd.sh
+        if [ $? -eq 0 ] 
+        then 
+            echo "SUCCEED"
+            exit 0 
+        else 
+            echo "FAILED"
+            exit 1 
+        fi
