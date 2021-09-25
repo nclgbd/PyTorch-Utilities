@@ -1,5 +1,5 @@
 {
-    "DATA_DIR": "data/",
+    "DATA_DIR": "test_data/",
     "TEST_DIR": "test_data/",
     "INC_DIR": "incorrect_images/",
     "MEDIA_DIR": "media/",
@@ -79,7 +79,7 @@
         "STD": [0.5, 0.5, 0.5]
     },
     "inceptionv4": {
-        "BATCH_SIZE": 32,
+        "BATCH_SIZE": 8,
         "ETA": 0.0001,
         "PATIENCE": 7,
         "CROP_SIZE": 299,

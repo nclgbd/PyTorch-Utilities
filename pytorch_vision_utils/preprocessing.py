@@ -110,5 +110,8 @@ def process_images(num_of_images, path, rebalance=True, debug=False):
         print(f"{s} images loaded")
 
 
-if __name__ == "__main__":
+def main():
     process_images(args["num_of_images"], POST_PATH, rebalance=rebalance, debug=debug)
+    
+if __name__ == "__main__":
+    main()

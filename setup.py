@@ -15,6 +15,10 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/nclgbd/PyTorch-Utilities",
     packages=find_packages(),
+    entry_points = {
+        'console_scripts': ['train=pytorch_vision_utils.train:main',
+                            'preprocess=pytorch_vision_utils.preprocessing:main'],
+    },
     scripts=["pytorch_vision_utils/train.py", "pytorch_vision_utils/preprocessing.py"],
     classifiers=[
         "Programming Language :: Python :: 3",

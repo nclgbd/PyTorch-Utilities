@@ -1,7 +1,4 @@
 import os
-import sys
-import torch
-
 from pytorch_vision_utils.Utilities import DataVisualizationUtilities, TrainingUtilities
 
 
@@ -40,14 +37,17 @@ def build_test():
         return -5
 
     print("Initializing TrainingUtilities class...")
-    TrainingUtilities(data_dir=TEST_DIR, model_dir=MODEL_DIR, model_name="mobilenetv2")
-    TrainingUtilities(data_dir=TEST_DIR, model_dir=MODEL_DIR, model_name="xception")
+    TrainingUtilities(model_name="mobilenetv2", parameters_path="test_parameters.json")
+    TrainingUtilities(model_name="xception", parameters_path="test_parameters.json")
+    TrainingUtilities(model_name="resnext101_32x4d", parameters_path="test_parameters.json")
+    TrainingUtilities(model_name="vggm", parameters_path="test_parameters.json")
+    TrainingUtilities(model_name="inceptionv4", parameters_path="test_parameters.json")
+   
 
     print("Initializing DatavisualizationUtilities class...")
     DataVisualizationUtilities()
 
     return 0
-
 
 
 def test_build_tests():
