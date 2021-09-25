@@ -16,6 +16,7 @@ dependencies:
   - sqlite
   - torchvision
   - wheel
+  - yaml
   - pip:
     - bumpversion
     - future

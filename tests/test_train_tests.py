@@ -101,26 +101,26 @@ def run_inceptionv4_epoch(train_utils):
 
 
 def test_run_mobilenetv2_epoch():
-    train_utils = TrainingUtilities(model_name="mobilenetv2", parameters_path="test_parameters.json")
+    train_utils = TrainingUtilities(model_name="mobilenetv2", parameters_path="test_parameters.yml")
     assert run_mobilenetv2_epoch(train_utils) == 0
     
 
 def test_run_xception_epoch():
-    train_utils = TrainingUtilities(model_name="xception", parameters_path="test_parameters.json")
+    train_utils = TrainingUtilities(model_name="xception", parameters_path="test_parameters.yml")
     assert run_xception_epoch(train_utils) == 0 
     
 
 def test_run_vggm_epoch():
-    train_utils = TrainingUtilities(model_name="vggm", parameters_path="test_parameters.json")
+    train_utils = TrainingUtilities(model_name="vggm", parameters_path="test_parameters.yml")
     assert run_vggm_epoch(train_utils) == 0 
    
 
 def test_run_resnext101_32x4d_epoch():
-    train_utils = TrainingUtilities(model_name="resnext101_32x4d", parameters_path="test_parameters.json")
+    train_utils = TrainingUtilities(model_name="resnext101_32x4d", parameters_path="test_parameters.yml")
     assert run_resnext101_32x4d_epoch(train_utils) == 0
     
 
 def test_run_inceptionv4_epoch():
-    train_utils = TrainingUtilities(model_name="inceptionv4", parameters_path="test_parameters.json")
+    train_utils = TrainingUtilities(model_name="inceptionv4", parameters_path="test_parameters.yml")
     assert run_inceptionv4_epoch(train_utils) == 0
     

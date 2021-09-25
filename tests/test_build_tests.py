@@ -37,11 +37,11 @@ def build_test():
         return -5
 
     print("Initializing TrainingUtilities class...")
-    TrainingUtilities(model_name="mobilenetv2", parameters_path="test_parameters.json")
-    TrainingUtilities(model_name="xception", parameters_path="test_parameters.json")
-    TrainingUtilities(model_name="resnext101_32x4d", parameters_path="test_parameters.json")
-    TrainingUtilities(model_name="vggm", parameters_path="test_parameters.json")
-    TrainingUtilities(model_name="inceptionv4", parameters_path="test_parameters.json")
+    TrainingUtilities(model_name="mobilenetv2", parameters_path="test_parameters.yml")
+    TrainingUtilities(model_name="xception", parameters_path="test_parameters.yml")
+    TrainingUtilities(model_name="resnext101_32x4d", parameters_path="test_parameters.yml")
+    TrainingUtilities(model_name="vggm", parameters_path="test_parameters.yml")
+    TrainingUtilities(model_name="inceptionv4", parameters_path="test_parameters.yml")
    
 
     print("Initializing DatavisualizationUtilities class...")

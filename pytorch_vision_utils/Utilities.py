@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import torch
-import json
+import yaml
 import os
 import hashlib
 import random
@@ -549,11 +549,11 @@ class DataVisualizationUtilities:
 
 class TrainingUtilities:
     
-    def __init__(self, model_name:str, parameters_path="parameters.json", mode="train", device=""):
+    def __init__(self, model_name:str, parameters_path="parameters.yml", mode="train", device=""):
         """
-        Useful functions for training PyTorch models. Providing a `/path/to/parameters.json` is required to work properly, assumed to be in
+        Useful functions for training PyTorch models. Providing a `/path/to/parameters.yml` is required to work properly, assumed to be in
         the project directory. Encapsulates all of the hyperparameter tuning into one convenient class to toy with by hand or automate by 
-        creating json file.\n
+        creating yml file.\n
         CAUTION: Currently in flux constantly, check back often for any documentation updates.
 
         Attributes
@@ -567,7 +567,7 @@ class TrainingUtilities:
         `device` : `str`, `optional`\n
             String representation of the device to train on, by default ""
         `parameters_path` : `str`, `optional`\n
-            String representation of the path to the "parameters.json" file, by default "parameters.json".
+            String representation of the path to the "parameters.yml" file, by default "parameters.yml".
         `mode` : `str`, `optional`\n
             String representation of the mode of training, by default "train"
         """  
@@ -633,40 +633,40 @@ class TrainingUtilities:
             return    
         
         with open(self.parameters_path, "r") as f:
-            json_file = json.load(f)
+            yml_file = yaml.load(f, Loader=yaml.FullLoader)
             
-            self.classes = json_file["CLASSES"]
-            self.n_splits = json_file["N_SPLITS"]
+            self.classes = yml_file["classes"]
+            self.n_splits = yml_file["n_splits"]
             
-            self.data_dir = json_file["DATA_DIR"]
-            self.test_dir = json_file["TEST_DIR"]
-            self.model_dir = json_file["MODEL_DIR"]
-            self.media_dir = json_file["MEDIA_DIR"]
-            self.inc_dir = json_file["INC_DIR"]
+            self.data_dir = yml_file["data_dir"]
+            self.test_dir = yml_file["test_dir"]
+            self.model_dir = yml_file["model_dir"]
+            self.media_dir = yml_file["media_dir"]
+            self.inc_dir = yml_file["inc_dir"]
             
-            settings = json_file[model_name]
+            settings = yml_file[model_name]
            
         if debug: 
             pprint(settings)
 
         # HYPERPARAMETERS
         self.model_name = model_name
-        self.batch_size = settings["BATCH_SIZE"]
-        self.eta = settings["ETA"]
-        self.patience = settings["PATIENCE"]
-        self.crop_size = settings["CROP_SIZE"]
-        self.degrees = settings["DEGREES"]
-        self.hue = settings["HUE"]
-        self.saturation = settings["SATURATION"]
-        self.contrast = settings["CONTRAST"]
-        self.brightness = settings["BRIGHTNESS"]
-        self.monitor = settings["MONITOR"]
-        self.min_delta = settings["MIN_DELTA"]
-        self.lr_patience = settings["LR_PATIENCE"]
-        self.factor = settings["FACTOR"]
-        self.input_size = settings["INPUT_SIZE"]
-        self.mean = settings["MEAN"]
-        self.std = settings["STD"]
+        self.batch_size = settings["batch_size"]
+        self.eta = settings["eta"]
+        self.patience = settings["patience"]
+        self.crop_size = settings["crop_size"]
+        self.degrees = settings["degrees"]
+        self.hue = settings["hue"]
+        self.saturation = settings["saturation"]
+        self.contrast = settings["contrast"]
+        self.brightness = settings["brightness"]
+        self.monitor = settings["monitor"]
+        self.min_delta = settings["min_delta"]
+        self.lr_patience = settings["lr_patience"]
+        self.factor = settings["factor"]
+        self.input_size = settings["input_size"]
+        self.mean = settings["mean"]
+        self.std = settings["std"]
         self.mode = mode
         
         self.model = self._set_model(self.model_name, debug).to(self.device)
