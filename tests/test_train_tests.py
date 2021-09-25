@@ -21,7 +21,7 @@ def run_mobilenetv2_epoch(train_utils):
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(train_utils.model.parameters(), lr=train_utils.eta)
     lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=train_utils.factor, patience=train_utils.lr_patience, verbose=True)
-    res = train_utils._train(train_dataset, test_dataset, criterion, optimizer, fold+1, ascii_=True, scheduler=lr_scheduler, 
+    res = train_utils._train(train_dataset, test_dataset, criterion, optimizer, fold+1, scheduler=lr_scheduler, 
                             dry_run=True, show_graphs=False, max_epoch=1)
     return 0 if res else -1
 
@@ -39,7 +39,7 @@ def run_xception_epoch(train_utils):
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(train_utils.model.parameters(), lr=train_utils.eta)
     lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=train_utils.factor, patience=train_utils.lr_patience, verbose=True)
-    res = train_utils._train(train_dataset, test_dataset, criterion, optimizer, fold+1, ascii_=True, scheduler=lr_scheduler, 
+    res = train_utils._train(train_dataset, test_dataset, criterion, optimizer, fold+1, scheduler=lr_scheduler, 
                             dry_run=True, show_graphs=False, max_epoch=1)
     return 0 if res else -1
 
@@ -57,7 +57,7 @@ def run_vggm_epoch(train_utils):
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(train_utils.model.parameters(), lr=train_utils.eta)
     lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=train_utils.factor, patience=train_utils.lr_patience, verbose=True)
-    res = train_utils._train(train_dataset, test_dataset, criterion, optimizer, fold+1, ascii_=True, scheduler=lr_scheduler, 
+    res = train_utils._train(train_dataset, test_dataset, criterion, optimizer, fold+1, scheduler=lr_scheduler, 
                             dry_run=True, show_graphs=False, max_epoch=1)
     return 0 if res else -1
 
@@ -75,7 +75,7 @@ def run_resnext101_32x4d_epoch(train_utils):
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(train_utils.model.parameters(), lr=train_utils.eta)
     lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=train_utils.factor, patience=train_utils.lr_patience, verbose=True)
-    res = train_utils._train(train_dataset, test_dataset, criterion, optimizer, fold+1, ascii_=True, scheduler=lr_scheduler, 
+    res = train_utils._train(train_dataset, test_dataset, criterion, optimizer, fold+1, scheduler=lr_scheduler, 
                             dry_run=True, show_graphs=False, max_epoch=1)
     return 0 if res else -1
 
@@ -93,7 +93,7 @@ def run_inceptionv4_epoch(train_utils):
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(train_utils.model.parameters(), lr=train_utils.eta)
     lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=train_utils.factor, patience=train_utils.lr_patience, verbose=True)
-    res = train_utils._train(train_dataset, test_dataset, criterion, optimizer, fold+1, ascii_=True, scheduler=lr_scheduler, 
+    res = train_utils._train(train_dataset, test_dataset, criterion, optimizer, fold+1, scheduler=lr_scheduler, 
                             dry_run=True, show_graphs=False, max_epoch=1)
     return 0 if res else -1
 
