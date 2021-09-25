@@ -196,8 +196,7 @@ def time_to_predict(model:nn.Module, loader:DataLoader, constant=1.5, device="cu
     deltas = []
         
     for images, labels in tqdm(loader, 
-                               desc="Predicting...".title(),
-                               bar_format='{l_bar}{bar:20}{r_bar}{bar:-20}'):
+                               desc="Predicting...".title()):
         
         images = images.to(device, dtype=torch.float)
         labels = labels.to(device, dtype=torch.long)
@@ -891,8 +890,7 @@ class TrainingUtilities:
 
         cost = correct = 0
         for feature, target in tqdm(loader, 
-                                    desc=self.mode.title(),
-                                    bar_format='{l_bar}{bar:20}{r_bar}{bar:-20}'):
+                                    desc=self.mode.title()+"\t"):
             
             feature, target = feature.to(self.device, dtype=torch.float32), target.to(self.device, dtype=torch.long)
             output = self.model(feature)
