@@ -24,18 +24,7 @@ from torchvision.utils import save_image
 from torch.utils.data import DataLoader, Dataset
 from tqdm.auto import tqdm
 
-# from .CustomModels import AlexNetWrapper, DenseNetWrapper, InceptionV3Wrapper, MobileNetV2Wrapper
-# from .CustomModels import ResNetWrapper, SqueezeNetWrapper, VGGWrapper, XceptionWrapper
-# from .CustomModels import MobileNetV2Wrapper, XceptionWrapper, get_avail_models
-
 from .CustomModels import avail_models
-
-# from torchvision.models import alexnet
-# from torchvision.models import densenet121, densenet161, densenet169, densenet201
-# from torchvision.models import inception_v3
-# from torchvision.models import resnet18, resnet34, resnet50, resnet101, resnet152
-# from torchvision.models import squeezenet1_0, squeezenet1_1
-# from torchvision.models import vgg11, vgg11_bn, vgg13, vgg13_bn, vgg16, vgg16_bn, vgg19, vgg19_bn
   
 sns.set_theme()
 
@@ -127,8 +116,10 @@ def create_fold_dirs(target_dir:str, dir_names:list):
         List of the subdirectory names.
     
     '''
-    dirs = os.path.join(target_dir, d)
-    os.makedirs(dirs, exist_ok=True)
+    
+    for d in dir_names:
+        dirs = os.path.join(target_dir, d)
+        os.makedirs(dirs, exist_ok=True)
 
     
         
@@ -149,7 +140,7 @@ def create_fold_names(model_name:str, n_splits=5) -> list:
         Returns a list of all the folder names.
     """    
     
-    return [f"{model_name}_fold_{idx}" for idx in range(1, n_splits+1)]
+    return [f"{model_name}_fold_{idx}" for idx in range(n_splits+1)]
 
             
 def remove_outliers(data:list, constant=1.5):
@@ -947,11 +938,11 @@ class TrainingUtilities:
             
             corrects = (labels == pred.argmax(1))
             for idx, is_correct in enumerate(corrects.cpu().numpy()):
-                if self.img_dir and not is_correct:
+                if self.inc_dir and not is_correct:
                     tensor_img = transforms.ToTensor()(DataVisualizationUtilities()._im_convert(tensor=images[idx].cpu(), mean=self.mean, std=self.std))
                     
                     hash_ = hashlib.sha256(get_timestamp().encode('utf-8')).hexdigest()[:5]
-                    img_path = os.path.join(self.img_dir, f"{self.model_name}_fold_{fold}", f"{hash_}_{labels[idx]}.png")
+                    img_path = os.path.join(self.inc_dir, f"{self.model_name}_fold_{fold}", f"{hash_}_{labels[idx]}.png")
                     save_image(tensor_img, img_path)
                                      
         return y_pred, y_true
@@ -1016,7 +1007,7 @@ class TrainingUtilities:
         self.set_model_parameters(model_name=model_name, debug=debug)
         
         dir_names = create_fold_names(self.model_name, n_splits=self.n_splits)
-        create_fold_dirs(inc_path, dir_names)
+        create_fold_dirs(self.inc_dir, dir_names)
         losses = []
         accuracies = []
         
