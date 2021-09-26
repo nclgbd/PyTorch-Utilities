@@ -21,6 +21,8 @@ dependencies:
     - future
     - mdutils
     - pandas
+    - pyyaml
+    - prettyprint
     - pytest
     - scipy
     - seaborn

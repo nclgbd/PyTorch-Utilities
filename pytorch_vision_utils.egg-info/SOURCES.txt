@@ -10,6 +10,7 @@ pytorch_vision_utils/train.py
 pytorch_vision_utils.egg-info/PKG-INFO
 pytorch_vision_utils.egg-info/SOURCES.txt
 pytorch_vision_utils.egg-info/dependency_links.txt
+pytorch_vision_utils.egg-info/entry_points.txt
 pytorch_vision_utils.egg-info/top_level.txt
 pytorch_vision_utils/custom_models/__init__.py
 pytorch_vision_utils/custom_models/bninception.py
