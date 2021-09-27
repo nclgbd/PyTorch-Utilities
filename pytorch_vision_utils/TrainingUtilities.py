@@ -9,6 +9,7 @@ from pprint import pprint
 from mdutils.mdutils import MdUtils
 from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
+from statistics import mean
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from tqdm.auto import tqdm
