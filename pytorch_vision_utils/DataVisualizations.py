@@ -214,6 +214,9 @@ class DataVisualizationUtilities:
             Tuple representing the dimensions of the figure in inches, by default (7, 7).
         """        
         
+        if len(train_utils.classes) > 2:
+            return
+        
         with torch.no_grad():
             y_pred, y_true = train_utils.get_predictions(fold)
             y_pred, y_true = y_pred.argmax(dim=1).cpu().clone().detach(), torch.tensor(y_true).cpu().clone().detach()

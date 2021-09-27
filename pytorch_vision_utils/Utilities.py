@@ -289,7 +289,6 @@ class CustomDataset(Dataset):
             
         self.mode = new_mode
 
-
     def __len__(self):
         return len(self.X)
       
