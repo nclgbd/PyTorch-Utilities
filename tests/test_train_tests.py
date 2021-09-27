@@ -1,7 +1,7 @@
 import os
 import json
 import torch
-from pytorch_vision_utils.Utilities import TrainingUtilities
+from pytorch_vision_utils.TrainingUtilities import TrainingUtilities
 from torch import nn
 
 # Default directory names

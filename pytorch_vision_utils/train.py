@@ -18,9 +18,9 @@ from torch import nn, optim
 from torchvision import datasets, transforms, models
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
-# from pretrainedmodels.models.xception import Xception
-# from pretrainedmodels.models.mobilenetv2 import MobileNetV2
-from pytorch_vision_utils.Utilities import DataVisualizationUtilities, TrainingUtilities
+
+from pytorch_vision_utils.DataVisualizations import DataVisualizationUtilities
+from pytorch_vision_utils.TrainingUtilities import TrainingUtilities
 
 
 
