@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from statistics import mean
 from sklearn.metrics import confusion_matrix, classification_report, roc_curve, auc
 
 
