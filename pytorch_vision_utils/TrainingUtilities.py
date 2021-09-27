@@ -550,7 +550,7 @@ class TrainingUtilities:
         
         
         # ROC GRAPH
-        if len(self.classes) > 2:
+        if len(self.classes) == 2:
             roc = "roc_graph_{}_{}".format(self.model_name, fold)
             roc_graph = DataVisualizationUtilities().display_roc_curve(0, train_utils=self)
             roc_path = os.path.join(self.media_dir, roc+".jpg")
@@ -562,7 +562,7 @@ class TrainingUtilities:
         if show_graphs:
             results_graph.show()
             metrics_graph.show()
-            if len(self.classes) > 2:
+            if len(self.classes) == 2:
                 roc_graph.show()
     
     
