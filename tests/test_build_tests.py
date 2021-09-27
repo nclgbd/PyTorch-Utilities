@@ -1,5 +1,6 @@
 import os
-from pytorch_vision_utils.Utilities import DataVisualizationUtilities, TrainingUtilities
+from pytorch_vision_utils.DataVisualizations import DataVisualizationUtilities
+from pytorch_vision_utils.TrainingUtilities import TrainingUtilities
 
 
 def build_test():

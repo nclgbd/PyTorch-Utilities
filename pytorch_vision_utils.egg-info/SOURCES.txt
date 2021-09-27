@@ -3,6 +3,8 @@ README.md
 setup.cfg
 setup.py
 pytorch_vision_utils/CustomModels.py
+pytorch_vision_utils/DataVisualizations.py
+pytorch_vision_utils/TrainingUtilities.py
 pytorch_vision_utils/Utilities.py
 pytorch_vision_utils/__init__.py
 pytorch_vision_utils/preprocessing.py
