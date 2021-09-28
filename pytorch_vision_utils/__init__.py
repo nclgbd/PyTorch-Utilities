@@ -4,4 +4,4 @@ from . import Utilities
 from . import DataVisualizations
 from . import TrainingUtilities
 
-version='0.4.1'
+version='0.4.2'

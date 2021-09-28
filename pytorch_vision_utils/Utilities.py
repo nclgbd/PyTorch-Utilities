@@ -123,7 +123,9 @@ def create_fold_names(model_name:str, n_splits=5) -> list:
         Returns a list of all the folder names.
     """    
     
-    return [f"{model_name}_fold_{idx}" for idx in range(n_splits+1)]
+    dir_names = [f"{model_name}_fold_{idx}" for idx in range(n_splits+1)]
+    dir_names.append(f"{model_name}_eval")
+    return dir_names
 
             
 def remove_outliers(data:list, constant=1.5):

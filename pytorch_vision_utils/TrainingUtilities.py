@@ -23,7 +23,8 @@ from .DataVisualizations import DataVisualizationUtilities
 from .Utilities import (CustomDataset, 
                         get_timestamp, 
                         create_fold_dirs, 
-                        create_fold_names)
+                        create_fold_names,
+                        time_to_predict)
 
 
 class TrainingUtilities:
@@ -147,6 +148,7 @@ class TrainingUtilities:
         self.mean = settings["mean"]
         self.std = settings["std"]
         self.mode = mode
+        self.md_file: MdUtils
         
         self.model = self._set_model(self.model_name, debug).to(self.device)
             
@@ -167,9 +169,6 @@ class TrainingUtilities:
         self.dataset = CustomDataset(self, mode=self.mode)
         self.loader = self.create_loader(self.dataset, batch_size=self.batch_size, shuffle=True)
         
-        report_path = "report_{}.md".format(self.model_name)
-        media_path = os.path.join(self.media_dir, report_path)
-        self.md_file = MdUtils(file_name=media_path, title='{} Results'.format(self.model_name.title()))
     
         
     def set_test_transform(self, new_transform:transforms.Compose):
@@ -430,7 +429,8 @@ class TrainingUtilities:
                     tensor_img = transforms.ToTensor()(DataVisualizationUtilities()._im_convert(tensor=images[idx].cpu(), mean=self.mean, std=self.std))
                     
                     hash_ = hashlib.sha256(get_timestamp().encode('utf-8')).hexdigest()[:5]
-                    img_path = os.path.join(self.inc_dir, f"{self.model_name}_fold_{fold}", f"{hash_}_{labels[idx]}.png")
+                    path_name = f"{self.model_name}_{fold}" if fold=="eval" else f"{self.model_name}_fold_{fold}"
+                    img_path = os.path.join(self.inc_dir, path_name, f"{hash_}_{labels[idx]}.png")
                     save_image(tensor_img, img_path)
                                      
         return y_pred, y_true
@@ -465,8 +465,40 @@ class TrainingUtilities:
         lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=self.factor, patience=self.lr_patience, verbose=True)
         return self._train(train_dataset, test_dataset, criterion, optimizer, fold, scheduler=lr_scheduler, 
                                 dry_run=dry_run, show_graphs=show_graphs)
+        
     
-    
+    def evaluate_model(self, model_name, model_weights_path):
+        """
+        Evaluates the model using the images from the test directory
+
+        Parameters
+        ----------
+        `model_name` : str\n
+            String representation of the model name
+        `model_weights_path` : str\n
+            String representation of the graph
+        """  
+              
+        self.load_weights(model_name=model_name, 
+                          model_weights_path=model_weights_path,
+                          mode="test")
+        
+        # METRICS GRAPH
+        metrics = "metrics_graph_{}_{}".format(self.model_name, "eval")
+        metrics_graph = DataVisualizationUtilities().display_metric_results(fold="eval", train_utils=self)
+        metrics_path = os.path.join(self.media_dir, metrics+".jpg")
+        metrics_graph.savefig(metrics_path, dpi=300)
+        self.add_plot_to_md("Confusion Matrix [{}]".format("Eval"), metrics)
+        
+        # ROC GRAPH
+        if len(self.classes) == 2:
+            roc = "roc_graph_{}_{}".format(self.model_name, "eval")
+            roc_graph = DataVisualizationUtilities().display_roc_curve(0, train_utils=self)
+            roc_path = os.path.join(self.media_dir, roc+".jpg")
+            roc_graph.savefig(roc_path, dpi=300)
+            self.add_plot_to_md("ROC Curve [{}]".format("Eval"), roc)
+        
+        
     def train(self, model_name:str, 
               show_graphs=True, 
               dry_run=True, 
@@ -493,6 +525,9 @@ class TrainingUtilities:
 
         """        
         self.set_model_parameters(model_name=model_name, debug=debug)
+        report_path = "report_{}.md".format(self.model_name)
+        media_path = os.path.join(self.media_dir, report_path)
+        self.md_file = MdUtils(file_name=media_path, title='{} Results'.format(self.model_name.title()))
         
         dir_names = create_fold_names(self.model_name, n_splits=self.n_splits)
         create_fold_dirs(self.inc_dir, dir_names)
@@ -525,7 +560,7 @@ class TrainingUtilities:
         print(results)
         
         self.md_file.new_paragraph("`{}`".format(results))
-        self.md_file.create_md_file()
+        # self.md_file.create_md_file()
         return avg_loss, avg_acc
     
     
