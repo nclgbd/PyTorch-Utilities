@@ -52,7 +52,6 @@ def main():
                                   debug=DEBUG)
     
     if EVALUATE:
-        print(EVALUATE)
         model_weights_weights = os.path.join(train_utils.model_dir, f"{MODEL_NAME}.pth")
         train_utils.evaluate_model(model_name=MODEL_NAME, 
                                    model_weights_path=model_weights_weights)
