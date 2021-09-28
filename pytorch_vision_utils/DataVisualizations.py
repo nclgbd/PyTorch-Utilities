@@ -72,14 +72,14 @@ class DataVisualizationUtilities:
 
                 
     
-    def display_metric_results(self, fold:int, train_utils, figsize=(7, 7)):
+    def display_metric_results(self, fold, train_utils, figsize=(7, 7)):
         """
         Displays classification report and confusion matrix.
 
         Parameters
         ----------
-        `fold` : `int`\n
-            Number representing the current fold during k-fold cross validation.
+        `fold` : `any`\n
+            Title representing the current fold during k-fold cross validation.
         `train_utils`\n
             TrainingUtilities instance.
         `figsize` : `tuple`, `optional`\n
@@ -95,6 +95,7 @@ class DataVisualizationUtilities:
         print("Classification Report\n")
         clr = classification_report(y_true.cpu(), y_pred.argmax(dim=1).cpu(), target_names=xticks)
         print(clr)
+        fold = fold.title() if fold=="eval" else fold
         train_utils.md_file.new_line("### Classification Report [{}]".format(fold))
         train_utils.md_file.insert_code(str(clr))
         print("Confusion Matrix")
